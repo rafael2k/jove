@@ -94,8 +94,8 @@ extern int	kill proto((pid_t /*pid*/, int /*sig*/));	/* signal.h */
 
 extern pid_t	fork proto((void));
 extern pid_t	getpid proto((void));
-extern int	getuid proto((void));
-extern int	setuid proto((int));
+extern unsigned short  getuid proto((void));
+extern int	setuid proto((unsigned short));
 # endif /* !POSIX_UNISTD */
 
 # ifdef USE_VFORK

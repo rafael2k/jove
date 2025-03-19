@@ -19,6 +19,9 @@
 #include "wind.h"	/* only used by JReadFile for fixup */
 #include "rec.h"
 
+extern int errno;
+#define ENOENT           2
+
 #ifdef MAC
 # include "mac.h"
 #else

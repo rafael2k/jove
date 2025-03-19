@@ -46,8 +46,6 @@
 # include <sys/ptem.h>
 #endif
 
-#include <signal.h>
-
 #ifdef MAC
 # include "mac.h"
 #else /* !MAC */
@@ -74,6 +72,26 @@ extern char *getLastErrorString(void);
 #ifdef STACK_DECL	/* provision for setting up appropriate stack */
 STACK_DECL
 #endif
+
+extern int errno;
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <time.h>
+#include <sys/select.h>
+#include <termios.h>
+#include <sys/ioctl.h>
+
+
+#define EPERM   1
+#define ENOENT  2
+#define EINTR   4
+#define EAGAIN  11
+
 
 /*
  * This is the maximum length of the basename of files in
@@ -148,7 +166,7 @@ private volatile bool	InWaitChar = NO;
 /*ARGSUSED*/
 private SIGRESTYPE
 AlarmHandler(junk)
-int	UNUSED(junk);	/* passed in on signal; of no interest */
+int	UNUSED2(junk);	/* passed in on signal; of no interest */
 {
 	int save_errno = errno;	/* Subtle, but necessary! */
 
@@ -193,14 +211,14 @@ int	global_maxfd;
 /* paths */
 
 /* VAR: directory path of machine-independent library with joverc, docs, etc */
-char	ShareDir[FILESIZE] = SHAREDIR;
+char	ShareDir[FILESIZE] = "/usr/jove/";
 
 /* VAR: directory/device to store tmp files */
-char	TmpDir[FILESIZE] = TMPDIR;
+char	TmpDir[FILESIZE] = "/tmp/";
 
 #ifdef SUBSHELL
 char
-	Shell[FILESIZE] = DFLTSHELL,	/* VAR: shell to use */
+	Shell[FILESIZE] = "/bin/sh",	/* VAR: shell to use */
 # ifdef MSFILESYSTEM
 	ShFlags[sizeof(ShFlags)] = "/c";	/* VAR: flags to shell */
 # else
@@ -212,7 +230,7 @@ char
 
 #if defined(SUBSHELL) && (defined(PIPEPROCS) || defined(RECOVER))
 # define NEED_LIBDIR	1
-char	LibDir[FILESIZE] = LIBDIR;
+char	LibDir[FILESIZE] = "/lib/";
 #endif
 
 /* finish: handle bad-news signals.
@@ -1176,6 +1194,7 @@ getch()
 void
 TeachJove()
 {
+#if 0
 	char tnamebuf[FILESIZE];
 	PathCat(tnamebuf, sizeof(tnamebuf), HomeDir, TEACHJOVE);
 	SetABuf(curbuf);
@@ -1185,6 +1204,7 @@ TeachJove()
 		PathCat(teachref, sizeof(teachref), ShareDir, TEACHJOVE);
 		read_file(teachref, YES);
 	}
+#endif
 }
 
 void
@@ -1563,7 +1583,7 @@ register char	**args,
 /*ARGSUSED*/
 SIGRESTYPE
 win_reshape(junk)
-int	UNUSED(junk);	/* passed in when invoked by a signal; of no interest */
+int	UNUSED2(junk);	/* passed in when invoked by a signal; of no interest */
 {
 	int save_errno = errno;	/* Subtle, but necessary! */
 

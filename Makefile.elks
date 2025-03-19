@@ -1,0 +1,60 @@
+# C86 Makefile for ELKS using OpenWatcom C
+
+############# Standard Section for Open Watcom C ##############
+ifndef TOPDIR
+$(error ELKS TOPDIR is not defined)
+endif
+
+ifndef WATCOM
+$(error OpenWatcom WATCOM is not defined)
+endif
+
+CC = owcc
+LD = owcc
+CLBASE = -mcmodel=l
+CLBASE += -bnone -march=i86 -std=c99
+CLBASE += -fno-stack-check -fnostdlib -fsigned-char
+CLBASE += -Wc,-fpc -Wc,-zev -Wc,-zls -Wc,-x -Wc,-wcd=303
+WARNINGS = -Wall
+INCLUDES = -I$(TOPDIR)/elks/include -I$(TOPDIR)/libc/include
+INCLUDES += -I$(TOPDIR)/libc/include/watcom
+DEFINES = -D__ELKS__ -DUNIX -DJTC -DNO_FCNTL -D_PID_T_ -DNDEBUG 
+CFLAGS = -O2 $(CLBASE) $(WARNINGS) $(INCLUDES) $(DEFINES) $(LOCALFLAGS)
+LDBASE = -bos2 -s
+LDBASE += -Wl,option -Wl,dosseg
+LDBASE += -Wl,option -Wl,start=_start
+LDBASE += -Wl,option -Wl,nodefaultlibs
+LDBASE += -Wl,option -Wl,stack=0x2000
+LDBASE += -Wl,option -Wl,heapsize=0x1000
+LDFLAGS = $(LDBASE)
+LDLIBS = -Wl,library -Wl,$(TOPDIR)/libc/libcl.lib
+
+OBJS = $(SRCS:.c=.obj)
+%.obj: %.c
+	$(CC) -c $(CFLAGS) -o $*.obj $<
+
+############# End of Standard Section ##############
+
+LOCALFLAGS = -DNDEBUG
+PROG = jove
+
+
+SRCS = \
+     mem.c \
+     commands.c argcount.c ask.c buf.c jctype.c delete.c \
+     disp.c insert.c io.c jove.c marks.c misc.c re.c \
+	        screen.c termcap.c unix.c util.c vars.c list.c keymaps.c \
+                mouse.c jtc.c \
+                abbrev.c rec.c para.c fmt.c \
+                c.c wind.c fp.c move.c \
+                extend.c macros.c \
+                iproc.c reapp.c \
+                proc.c scandir.c term.c case.c \
+
+all: $(PROG)
+
+$(PROG): $(OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+clean:
+	rm -f $(PROG) *.obj

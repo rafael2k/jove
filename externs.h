@@ -66,9 +66,8 @@ extern char	*ctime proto((const time_t *));
 
 #ifdef MSFILESYSTEM
 # include <io.h>
-#else
-# include <sys/file.h>
 #endif
+
 
 #ifdef MSC51
 #define const	/* the const's in the following defs conflict with MSC 5.1 */
@@ -153,10 +152,10 @@ extern JSSIZE_T
  */
 extern int	execl proto((const char * /*path*/, const char * /*arg*/, ...));
 extern int	execlp proto((const char * /*file*/, const char * /*arg*/, ...));
-extern int	execv proto((const char * /*path*/, char *const /*argv*/[]));
-extern int	execve proto((const char * /*path*/, char *const /*argv*/[],
-			      char *const /*envp*/[]));
-extern int	execvp proto((const char * /*file*/, char *const /*argv*/[]));
+extern int	execv proto((const char * /*path*/, char **const /*argv*/));
+extern int	execve proto((const char * /*path*/, char **const /*argv*/,
+			      char **const /*envp*/));
+extern int	execvp proto((const char * /*file*/, char **const /*argv*/));
 # endif
 
 # ifdef MSC51
@@ -173,7 +172,7 @@ extern int	dup proto((int));
 extern int	dup2 proto((int /*old_fd*/, int /*new_fd*/));
 extern off_t	lseek proto((int /*fd*/, off_t /*offset*/, int /*whence*/));
 extern int	fchmod proto((int /*fd*/, jmode_t /*mode*/));
-extern int	chown proto((const char *, int, int));
+extern int	chown proto((const char *, unsigned short, unsigned short));
 
 extern int	unlink proto((const char */*path*/));
 

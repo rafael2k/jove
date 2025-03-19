@@ -310,7 +310,7 @@ getTERM()
 
 private void
 tputc(c)
-char	c;
+int	c;
 {
 	scr_putchar(c);
 }

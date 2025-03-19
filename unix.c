@@ -91,8 +91,9 @@ bool	n;	/* also used as subscript! */
 		 * NOTE: the nested tangle of ifdefs is intended to follow
 		 * the structure of the definitions in ttystate.c.
 		 */
-#ifdef SGTTY
-		(void) gtty(0, &sg[NO]);
+//#ifdef SGTTY
+#if 1
+            (void) gtty(0, &sg[NO]);
 #endif
 
 #ifdef TERMIO

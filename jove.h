@@ -11,9 +11,10 @@
 # include "tune.h"  /* must include first since it controls everything else */
 #endif
 
+#include <unistd.h>
 #include <setjmp.h>
 #include <string.h>
-#include <errno.h>
+/* #include <errno.h> */
 
 #ifndef EWOULDBLOCK
 /* older Unix, e.g. V7 */

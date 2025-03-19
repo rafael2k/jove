@@ -275,17 +275,16 @@
 # define TERMCAP	1
 # define NCURSES_BUG	1   /* almost certainly safe anyway */
 # define WINRESIZE	1
-# define MOUSE		1
+# define MOUSE		0
 # define MALLOC_CACHE	1
-# if !(defined(USE_PWD) || defined(USE_GETCWD) || defined(USE_GETWD))
-#  define USE_GETWD     1
-# endif
-# if !(defined(NO_IPROCS) || defined(PIPEPROCS) || defined(PTYPROCS))
-#  define PIPEPROCS	1	/* use pipes */
-# endif
-# if !defined(TERMIOS) && !defined(SGTTY)
-#  define TERMIO	1	/* uses termio struct for terminal modes */
-# endif
+# define USE_GETWD     1
+# define PIPEPROCS	1	/* use pipes */
+# define TERMIO	1	/* uses termio struct for terminal modes */
+# define LG_JBUFSIZ	11	/* so JBUFSIZ (and max line len) 2048 chars */
+# define NBUF		30	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
+# define JSMALL		1	/* less than 64K lines fit in memory anyway */
+# define FAR_LINES	1	/* to squeeze larger files, use far line pointers */
+
 /* At the moment, the PTY code mandates having select().  One day, this might
  * change.
  */
@@ -305,18 +304,8 @@
 # define EXIT	exit
 #endif
 
-/* lint suppression macros; GCC requires use of extensions! Clang mimics. */
-#if !defined(GCC_LINT) && (defined(__GNUC__) || defined(__clang__))
-# define GCC_LINT
-#endif
-
-#ifdef GCC_LINT
-# define UNUSED(x)	x __attribute__ ((unused))
-# define NEVER_RETURNS	__attribute__ ((noreturn))
-#else /* !GCC_LINT */
-# define UNUSED(x)	x
+# define UNUSED2(x)	x
 # define NEVER_RETURNS
-#endif /* !GCC_LINT */
 
 /*************************************************************************
  *
