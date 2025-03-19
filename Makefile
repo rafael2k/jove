@@ -136,7 +136,7 @@ JOVETOOLM = $(DMANDIR)/jovetool.$(MANEXT)
 # to CFLAGS.  This means the contents of CPPFLAGS will likely 
 # appear twice in cc invocations on non-FreeBSD (i.e. OpenBSD, NetBSD, Linux)
 # so best to avoid setting it (the default value is empty anyway)
-SYSDEFS = -D`uname` -DJTC $(CPPFLAGS)
+SYSDEFS = -DLinux -DJTC $(CPPFLAGS)
 
 # OPTFLAGS: compiler flags that are passed to both the compiling & linking steps
 # e.g. -g for debugging, -O for optimization.

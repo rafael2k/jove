@@ -92,7 +92,8 @@ extern int errno;
 #define EINTR   4
 #define EAGAIN  11
 
-
+char JoveCompiled[] = "ELKS OWC 2.0 2025";
+char JoveLinked[] = "ELKS OS/2 2025" ;
 /*
  * This is the maximum length of the basename of files in
  * ShareDir or LibDir (plus 1 for leading slash), as a check

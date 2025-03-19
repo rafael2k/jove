@@ -49,7 +49,7 @@ SRCS = \
                 c.c wind.c fp.c move.c \
                 extend.c macros.c \
                 iproc.c reapp.c \
-                proc.c scandir.c term.c case.c \
+                proc.c scandir.c term.c case.c keys.c \
 
 all: $(PROG)
 

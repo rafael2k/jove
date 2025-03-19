@@ -11,6 +11,10 @@
 #include "disp.h"
 #include "fmt.h"
 
+
+extern int errno;
+#define EINTR   4
+
 #ifdef MAC
 #	include "mac.h"
 #else /* !MAC */

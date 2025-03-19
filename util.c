@@ -18,6 +18,8 @@
 #include "move.h"
 #include "rec.h"
 
+extern int errno;
+
 #ifdef MAC
 # include "mac.h"
 #endif

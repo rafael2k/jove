@@ -28,6 +28,10 @@
 #include "proc.h"
 #include "wind.h"
 
+extern int errno;
+#define EINTR   4
+#define ECHILD 10 
+
 #ifdef USE_KILLPG
 # ifndef FULL_UNISTD
 extern int	UNMACRO(killpg) proto((int /*pgrp*/, int /*sig*/));

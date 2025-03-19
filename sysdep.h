@@ -275,11 +275,12 @@
 # define TERMCAP	1
 # define NCURSES_BUG	1   /* almost certainly safe anyway */
 # define WINRESIZE	1
-# define MOUSE		0
+# define MOUSE		1
 # define MALLOC_CACHE	1
 # define USE_GETWD     1
-# define PIPEPROCS	1	/* use pipes */
-# define TERMIO	1	/* uses termio struct for terminal modes */
+//# define PIPEPROCS	1	/* use pipes */
+# define TERMIOS	1
+//# define TERMIO	        0	/* uses termio struct for terminal modes */
 # define LG_JBUFSIZ	11	/* so JBUFSIZ (and max line len) 2048 chars */
 # define NBUF		30	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
 # define JSMALL		1	/* less than 64K lines fit in memory anyway */

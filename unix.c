@@ -9,6 +9,13 @@
 
 #ifdef UNIX /* the body is the rest of the file */
 
+#include <termios.h>
+extern int errno;
+#define EPERM   1
+#define ENOENT  2
+#define EINTR   4
+#define EAGAIN  11
+
 #include "fp.h"
 
 #ifdef BIFF
@@ -91,9 +98,8 @@ bool	n;	/* also used as subscript! */
 		 * NOTE: the nested tangle of ifdefs is intended to follow
 		 * the structure of the definitions in ttystate.c.
 		 */
-//#ifdef SGTTY
-#if 1
-            (void) gtty(0, &sg[NO]);
+#ifdef SGTTY
+		(void) gtty(0, &sg[NO]);
 #endif
 
 #ifdef TERMIO
