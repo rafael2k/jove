@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define MALLOC_ARENA_SIZE   32000  /* size of initial arena fmemalloc (max 65520)*/
+#define MALLOC_ARENA_SIZE   42000U  /* size of initial arena fmemalloc (max 65520)*/
 #define MALLOC_ARENA_THRESH 1024U   /* max size to allocate from arena-managed heap */
 
 unsigned int malloc_arena_size = MALLOC_ARENA_SIZE;
@@ -30,10 +30,16 @@ void *malloc(size_t size)
     }
 
     if (size <= malloc_arena_thresh)
+	{
         p = _fmalloc(size);
-    else p = fmemalloc(size);
-
-//    printf("malloc %u %s\n", size, p? "not null":"null");
+		if (p == NULL)
+		{
+            __dprintf("HEAP full: allocating from far memory %u\n", size);
+			p = fmemalloc(size);
+		}
+	}
+    else
+		p = fmemalloc(size);
     return p;
 }
 
