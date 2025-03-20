@@ -345,7 +345,7 @@
 #endif
 
 #ifndef JSSIZE_T
-# define JSSIZE_T    long
+# define JSSIZE_T    int
 #endif
 
 /* jmode_t: the type for file modes
