@@ -6,10 +6,12 @@
  **************************************************************************/
 
 #ifdef NO_JSTDOUT
+// # define scr_putchar(c)	fputc((c), stdout) // TODO
 extern void	scr_putchar proto((char c));	/* defined in win32.c */
 # ifdef IBMPCDOS
 #  define flushscreen()	{ }
 # else /* !IBMPCDOS */
+// # define flushscreen()	{ } // TODO
 extern void flushscreen proto((void));
 # endif /* !IBMPCDOS */
 #else /* !NO_JSTDOUT */

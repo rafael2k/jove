@@ -21,7 +21,7 @@ extern int	UNMACRO(tgetent) proto((char */*buf*/, const char */*name*/));
 extern int	UNMACRO(tgetflag) proto((const char */*id*/));
 extern int	UNMACRO(tgetnum) proto((const char */*id*/));
 extern char	*UNMACRO(tgetstr) proto((const char */*id*/, char **/*area*/));
-extern void	UNMACRO(tputs) proto((const char *, int, void (*) proto((int))));
+extern void	UNMACRO(tputs2) proto((const char *, int, void (*) proto((int))));
 
 /* Termcap definitions */
 
@@ -329,7 +329,7 @@ int
 {
 	if (ms && (num > 1 || !ss)) {
 		/* use the multi string */
-		tputs(targ1(ms, num), lines, tputc);
+		tputs2(targ1(ms, num), lines, tputc);
 	} else {
 		/* repeatedly use single string */
 		while (num--)
@@ -345,7 +345,7 @@ const char	*str;
 int	lines;
 {
 	if (str != NULL)
-		tputs(str, lines, tputc);
+		tputs2(str, lines, tputc);
 }
 
 void

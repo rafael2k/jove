@@ -281,11 +281,12 @@
 //# define USE_GETWD     1
 //# define PIPEPROCS	1	/* use pipes */
 # define TERMIOS	1
-//# define TERMIO	        0	/* uses termio struct for terminal modes */
+// # define TERMIO	        0	/* uses termio struct for terminal modes */
 # define LG_JBUFSIZ	10	/* so JBUFSIZ (and max line len) 1024 chars */
 # define NBUF		10	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
 # define JSMALL		1	/* less than 64K lines fit in memory anyway */
 # define FAR_LINES	1	/* to squeeze larger files, use far line pointers */
+// # define NO_JSTDOUT	1	/* don't use jstdout */
 
 /* At the moment, the PTY code mandates having select().  One day, this might
  * change.

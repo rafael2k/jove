@@ -191,7 +191,7 @@ int delay;
 }
 
 void
-tputs(str, lines, putfunc)
+tputs2(str, lines, putfunc)
 const char *str;
 int lines;
 void (*putfunc) proto((int));
@@ -339,7 +339,7 @@ xtputs(delay, s, li)
 int delay, li;
 const char *s;
 {
-	tputs(s, li, putchar);
+	tputs2(s, li, putchar);
 	fflush(stdout);
 	jdelay(delay);
 }

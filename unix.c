@@ -26,6 +26,8 @@ extern int errno;
 #include "term.h"	/* ospeed */
 #include "ttystate.h"
 
+extern short ospeed;
+
 
 #ifdef SGTTY
 struct sgttyb	sg[2];
@@ -542,6 +544,10 @@ ttsize()
 	}
 # endif /* BTL_BLIT */
 #endif /* !TIOCGWINSZ */
+        if (LI == 0)
+            LI = 25;
+        if (CO == 0)
+            CO = 80;
 	ILI = LI - 1;
 }
 
