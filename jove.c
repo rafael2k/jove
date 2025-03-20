@@ -212,14 +212,14 @@ int	global_maxfd;
 /* paths */
 
 /* VAR: directory path of machine-independent library with joverc, docs, etc */
-char	ShareDir[FILESIZE] = "/usr/jove/";
+char	ShareDir[FILESIZE] = SHAREDIR;
 
 /* VAR: directory/device to store tmp files */
-char	TmpDir[FILESIZE] = "/tmp/";
+char	TmpDir[FILESIZE] = TMPDIR;
 
 #ifdef SUBSHELL
 char
-	Shell[FILESIZE] = "/bin/sh",	/* VAR: shell to use */
+	Shell[FILESIZE] = DFLTSHELL,	/* VAR: shell to use */
 # ifdef MSFILESYSTEM
 	ShFlags[sizeof(ShFlags)] = "/c";	/* VAR: flags to shell */
 # else
@@ -231,7 +231,7 @@ char
 
 #if defined(SUBSHELL) && (defined(PIPEPROCS) || defined(RECOVER))
 # define NEED_LIBDIR	1
-char	LibDir[FILESIZE] = "/lib/";
+char	LibDir[FILESIZE] = LIBDIR;
 #endif
 
 /* finish: handle bad-news signals.
@@ -1195,7 +1195,6 @@ getch()
 void
 TeachJove()
 {
-#if 0
 	char tnamebuf[FILESIZE];
 	PathCat(tnamebuf, sizeof(tnamebuf), HomeDir, TEACHJOVE);
 	SetABuf(curbuf);
@@ -1205,7 +1204,6 @@ TeachJove()
 		PathCat(teachref, sizeof(teachref), ShareDir, TEACHJOVE);
 		read_file(teachref, YES);
 	}
-#endif
 }
 
 void
