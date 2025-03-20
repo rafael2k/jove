@@ -72,7 +72,7 @@ make_scr()
 	if (screenchars != NULL)
 		free((UnivPtr) screenchars);	/* free all the screen data */
 
-        printf("LI %d malloc %d\n", LI,  LI * sizeof(struct screenline));
+        // printf("LI %d malloc %d\n", LI,  LI * sizeof(struct screenline));
 	DesiredScreen = (struct scrimage *) malloc((unsigned) LI * sizeof (struct scrimage));
 	PhysScreen = (struct scrimage *) malloc((unsigned) LI * sizeof (struct scrimage));
 
