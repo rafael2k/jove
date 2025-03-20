@@ -43,6 +43,13 @@ void *malloc(size_t size)
     return p;
 }
 
+void *calloc(size_t size, size_t num)
+{
+    size *= num;
+
+    return malloc(size);
+}
+
 void free(void *ptr)
 {
     if (ptr == NULL)
