@@ -71,14 +71,13 @@ bool
 
 #  ifdef DEFINE_PC_BC_UP_OSPEED
 	/* This is needed for HP-UX, possibly for other SYSVR2 systems */
-char
-	PC;		/* pad character, as a char (set from lPC; defaults to NUL) */
+//char	PC;		/* pad character, as a char (set from lPC; defaults to NUL) */
 
 const char
-	*BC,	/* back space (defaults to BS) */
-	*UP;	/* Scroll reverse, or up */
+    *BC,	/* back space (defaults to BS) */
+    *UP;	/* Scroll reverse, or up */
 
-short	ospeed;
+// short	ospeed;
 #  endif /* DEFINE_PC_BC_UP_OSPEED */
 
 bool	CanScroll;	/* can this terminal scroll? */
@@ -172,8 +171,8 @@ getTERM()
 {
 	char	termnmbuf[13],
 		*termname = getenv("TERM"),
-		*termp = tspace,
-		tbuff[2048];	/* Good grief! */
+                *termp = tspace;
+//		tbuff[1024];	/* Good grief! */
 
 	if (termname == NULL || *termname == '\0'
 	|| strcmp(termname, "dumb") == 0
@@ -188,19 +187,22 @@ getTERM()
 		termname = termnmbuf;
 	}
 
+#ifdef TODO
 	if (tgetent(tbuff, termname) < 1)
 		tcbad(termname, "type unknown");
-
+#endif
 	/* get numeric capabilities */
 
 	if ((CO = tgetnum("co")) == -1)
-		tcbad(termname, "co unknown (width)");
+            CO = 80;
+            //tcbad(termname, "co unknown (width)");
 
 	if (CO > MAXCOLS)
 		CO = MAXCOLS;
 
 	if ((LI = tgetnum("li")) == -1)
-		tcbad(termname, "li unknown (height)");
+            LI = 25;
+            //tcbad(termname, "li unknown (height)");
 
 	if ((phystab = tgetnum("it")) == -1 || phystab <= 0)
 		phystab = 8;

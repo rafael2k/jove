@@ -2010,11 +2010,13 @@ char	*argv[];
 #ifdef MAC
 	InitEvents();
 #endif
-	d_cache_init();		/* initialize the disk buffer cache */
+        d_cache_init();		/* initialize the disk buffer cache */
+
 	make_scr();
-	flushscreen();	/* kludge: prevent interleaving output with diagnostic */
+        flushscreen();	/* kludge: prevent interleaving output with diagnostic */
 	mac_init();	/* Initialize Macros */
-	winit();	/* Initialize Window */
+        winit();	/* Initialize Window */
+
 #ifdef PTYPROCS
 # ifdef SIGCHLD
 	(void) setsighandler(SIGCHLD, sigchld_handler);

@@ -32,6 +32,8 @@ void *malloc(size_t size)
     if (size <= malloc_arena_thresh)
         p = _fmalloc(size);
     else p = fmemalloc(size);
+
+//    printf("malloc %u %s\n", size, p? "not null":"null");
     return p;
 }
 

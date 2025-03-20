@@ -525,10 +525,12 @@ void
 dopipe(p)
 int	*p;
 {
+#if 0
 	if (pipe(p) == -1) {
 		complain("[Pipe failed: %s]", strerror(errno));
 		/* NOTREACHED */
 	}
+#endif
 }
 
 void

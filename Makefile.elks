@@ -15,10 +15,11 @@ CLBASE = -mcmodel=l
 CLBASE += -bnone -march=i86 -std=c99
 CLBASE += -fno-stack-check -fnostdlib -fsigned-char
 CLBASE += -Wc,-fpc -Wc,-zev -Wc,-zls -Wc,-x -Wc,-wcd=303
+# -Wc,-zt1024
 WARNINGS = -Wall
 INCLUDES = -I$(TOPDIR)/elks/include -I$(TOPDIR)/libc/include
 INCLUDES += -I$(TOPDIR)/libc/include/watcom
-DEFINES = -D__ELKS__ -DUNIX -DJTC -DNO_FCNTL -D_PID_T_ -DNDEBUG 
+DEFINES = -D__ELKS__ -DUNIX  -DNO_FCNTL -D_PID_T_ -DNO_MKSTEMP -DJSMALL -DDEFINE_PC_BC_UP_OSPEED -DNDEBUG 
 CFLAGS = -O2 $(CLBASE) $(WARNINGS) $(INCLUDES) $(DEFINES) $(LOCALFLAGS)
 LDBASE = -bos2 -s
 LDBASE += -Wl,option -Wl,dosseg
