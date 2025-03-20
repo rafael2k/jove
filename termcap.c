@@ -31,10 +31,10 @@ const char
 	*SE,	/* End standout */
 	*US,	/* Start underlining */
 	*UE,	/* End underlining */
-	*CM,	/* The cursor motion string */
+    *CM = "_",	/* The cursor motion string */ // TODO
 	*CL,	/* Clear screen */
 	*CE,	/* Clear to end of line */
-	*HO,	/* Home cursor */
+    *HO = " ",	/* Home cursor */ // TODO
 	*AL,	/* Addline (insert line) */
 	*DL,	/* Delete line */
 	*VS,	/* Visual start */
@@ -198,7 +198,7 @@ getTERM()
             //tcbad(termname, "co unknown (width)");
 
 	if (CO > MAXCOLS)
-		CO = MAXCOLS;
+            CO = MAXCOLS;
 
 	if ((LI = tgetnum("li")) == -1)
             LI = 25;
@@ -304,6 +304,7 @@ getTERM()
 			IMEIlen = strlen(IM) + strlen(EI);
 #endif
 	}
+
 	if (!(CM != NULL || HO != NULL))
 		tcbad(termname, "JOVE needs either cm or ho termcap/terminfo capability");
 }
