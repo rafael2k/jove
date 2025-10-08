@@ -63,6 +63,7 @@
 #endif /* MSDOS */
 
 #ifdef WIN32
+# undef Fill /* sigh, used as a field name in some windows header! */
 # undef CR /* sigh, used as a field name in some windows header! */
 # include <windows.h>	/* ??? is this needed? */
 # undef FIONREAD	 /* This is defined but ioctl isn't so we cannot use it. */
@@ -109,13 +110,13 @@ char JoveLinked[] = "ELKS OS/2 2025" ;
 #define MAXBASENAMELEN (1+14+1)
 
 private void
-	UnsetTerm proto((bool)),
-	DoKeys proto((bool firsttime)),
+	UnsetTerm proto((jbool)),
+	DoKeys proto((jbool firsttime)),
 	ShowKeyStrokes proto((void)),
 	jexecpath proto((char *, size_t));
 
 #ifdef NONBLOCKINGREAD
-private void	setblock proto((bool on));
+private void	setblock proto((jbool on));
 #endif
 
 #ifdef POSIX_SIGS
@@ -135,7 +136,7 @@ SIGHANDLERTYPE	handler;
 }
 #endif
 
-bool	TimeDisplayed = YES;	/* is time actually displayed in modeline? */
+jbool	TimeDisplayed = YES;	/* is time actually displayed in modeline? */
 char	JoveFeatures[MAXCOLS];	/* VAR: list of compiled-in features */
 
 #ifdef UNIX
@@ -143,11 +144,11 @@ char	JoveFeatures[MAXCOLS];	/* VAR: list of compiled-in features */
 /* set things up to update the modeline every UpdFreq seconds */
 
 int	UpdFreq = 30;	/* VAR: how often to update modeline */
-bool	InSlowRead = NO;
+jbool	InSlowRead = NO;
 
 void
 SetClockAlarm(unset)
-bool	unset;	/* unset alarm if none needed */
+jbool	unset;	/* unset alarm if none needed */
 {
 	if (TimeDisplayed && UpdFreq != 0)
 		(void) alarm((unsigned) (UpdFreq - (time((time_t *)NULL) % UpdFreq)));
@@ -162,7 +163,7 @@ bool	unset;	/* unset alarm if none needed */
  * is called often enough that it turns out to be self-correcting.
  */
 
-private volatile bool	InWaitChar = NO;
+private volatile jbool	InWaitChar = NO;
 
 /*ARGSUSED*/
 private SIGRESTYPE
@@ -199,7 +200,7 @@ int	UNUSED2(junk);	/* passed in on signal; of no interest */
 
 #endif /* UNIX */
 
-bool	stickymsg;	/* the last message should stick around */
+jbool	stickymsg;	/* the last message should stick around */
 
 char	NullStr[] = "";
 jmp_buf	mainjmp;
@@ -262,7 +263,7 @@ int	code;
 #ifdef RECOVER
 	int save_errno = errno;	/* Subtle, but necessary! */
 #endif
-	bool	DelTmps = YES;		/* Usually we delete them. */
+	jbool	DelTmps = YES;		/* Usually we delete them. */
 
 	DisabledRedisplay = YES;
 #ifndef MAC
@@ -273,7 +274,7 @@ int	code;
 #endif
 #ifdef RECOVER
 	if (code != 0) {
-		static bool	Crashing = NO;	/* we are in the middle of crashing */
+		static jbool	Crashing = NO;	/* we are in the middle of crashing */
 
 		if (!Crashing) {
 			Crashing = YES;
@@ -321,7 +322,7 @@ int	code;
 	c = FatalErrorMessage("Fatal interrupt encountered. Abort?");
 #else /* !WIN32 */
 # ifdef PIPEPROCS
-	bool	started;
+	jbool	started;
 # endif
 
 	resetsighandler(SIGINT, handle_sigint);
@@ -372,10 +373,10 @@ private int	nchars = 0;
 
 private void
 setblock(on)	/* turn blocking on or off */
-bool	on;
+jbool	on;
 {
 	static int blockf, nonblockf;
-	static bool	first = YES;
+	static jbool	first = YES;
 
 	if (first) {
 		int flags;
@@ -417,7 +418,7 @@ bool	on;
 
 int	SlowCmd = 0;	/* depth of nesting of slow commands */
 
-bool	InputPending = NO;	/* is there input waiting to be processed? */
+jbool	InputPending = NO;	/* is there input waiting to be processed? */
 
 /* Inputp is used to jam a NUL-terminated string into JOVE's input stream.
  * It is used to feed each line of the joverc file, to fill in the default
@@ -581,7 +582,7 @@ kbd_getch()
 
 /* Returns YES if a character waiting (excluding macro body) */
 
-bool
+jbool
 charp()
 {
 	if (InJoverc != 0 || kbdpeek != EOF || nchars > 0 || Inputp != NULL)
@@ -770,9 +771,9 @@ private char
 	key_strokes[100],
 	*keys_p = key_strokes;
 
-private bool	in_ask_ks;
+private jbool	in_ask_ks;
 
-private volatile bool	slow_keying = NO;	/* for waitchar() */
+private volatile jbool	slow_keying = NO;	/* for waitchar() */
 
 void
 cmd_sync()
@@ -839,7 +840,7 @@ waitchar()
 {
 	ZXchar	c;
 #ifdef WAITCHAR_CURSOR_DOWN
-	bool	oldAsking;
+	jbool	oldAsking;
 	int	oldAskingWidth;
 #endif
 
@@ -932,7 +933,7 @@ SetTerm()
 
 private void
 UnsetTerm(WarnUnwritten)
-bool	WarnUnwritten;
+jbool	WarnUnwritten;
 {
 #ifdef TERMCAP
 # ifdef ID_CHAR
@@ -1025,7 +1026,7 @@ Push()
 	SIGHANDLERTYPE	old_int = setsighandler(SIGINT, SIG_IGN);
 	int	forkerr = 0;
 #  ifdef PIPEPROCS
-	bool	started = kbd_stop();
+	jbool	started = kbd_stop();
 #  endif
 
 	UnsetTerm(YES);
@@ -1085,13 +1086,13 @@ tty_adjust()
 #endif
 }
 
-bool	Interactive = NO;	/* True when we invoke with the command handler? */
+jbool	Interactive = NO;	/* True when we invoke with the command handler? */
 
 ZXchar
 	peekchar = EOF,	/* holds pushed-back getch output */
 	LastKeyStruck;	/* used by SelfInsert and friends */
 
-bool
+jbool
 	MetaKey = NO;		/* VAR: this terminal has a meta key */
 
 void
@@ -1489,14 +1490,14 @@ Recur()
 	DelMark(m);
 }
 
-bool	SaveOnExit = NO;	/* VAR: offer to save buffers on exit */
+jbool	SaveOnExit = NO;	/* VAR: offer to save buffers on exit */
 
 private int	iniargc;	/* main sets these for DoKeys() */
 private char	**iniargv;
 
 private void
 DoKeys(firsttime)
-bool	firsttime;
+jbool	firsttime;
 {
 	jmp_buf	savejmp;
 
@@ -1603,12 +1604,12 @@ int	UNUSED2(junk);	/* passed in when invoked by a signal; of no interest */
 }
 #endif /* WINRESIZE */
 
-private bool
+private jbool
 carefulcpy(to, from, maxsize, mess, raw)
 char	*to,*from;
 size_t	maxsize;
 char	*mess;
-bool	raw;
+jbool	raw;
 {
 	if (from != NULL) {
 		const char	*ugh;
@@ -1636,8 +1637,8 @@ bool	raw;
 
 private void
 dojovercs(dosys, dousr)
-bool	dosys;
-bool	dousr;
+jbool	dosys;
+jbool	dousr;
 {
 	char	Joverc[FILESIZE];
 
@@ -2075,11 +2076,7 @@ char	*argv[];
 }
 
 #ifdef PNAME_SYSCTL_OID
-
-/*
- * FreeBSD, NetBSD.  Includes stdbool, so must be after all
- * the uses of the Jove bool type, sigh!
- */
+/* FreeBSD, NetBSD */
 # include <sys/sysctl.h>
 #endif
 

@@ -40,11 +40,11 @@
  */
 
 #ifdef REALSTDC
-# define    USE_PROTOTYPES  1
+# define    USE_PROTOTYPES	1
 #endif
 
 #ifdef USE_PROTOTYPES
-# define proto(x)        x
+# define proto(x)		x
 # ifdef NO_PTRPROTO
    /* on these systems, a prototype cannot be used for a pointer to function */
 #  define ptrproto(x)		()
@@ -149,7 +149,7 @@
 
 #define private		static
 
-typedef int	bool;
+typedef int	jbool;
 #define NO		0
 #define YES		1
 
@@ -290,7 +290,7 @@ typedef int ZXchar;	/* type for expanded char (possibly EOF) */
 /* Pervasive exports of other modules */
 
 /* disp.c */
-extern volatile bool	UpdModLine;	/* Does the mode line need to be updated? */
+extern volatile jbool	UpdModLine;	/* Does the mode line need to be updated? */
 
 /* term.c: universal termcap-like declarations */
 
@@ -300,7 +300,7 @@ extern int
 	ILI,		/* number of internal lines (LI - 1) */
 	CO;		/* number of columns (CO <= MAXCOLS) */
 
-extern bool
+extern jbool
 	TABS;		/* terminal supports tabs */
 
 /* typedef pervasive structure definitions */
@@ -368,14 +368,14 @@ extern int
 	RecDepth,	/* recursion depth (used by disp.c for modeline) */
 	SlowCmd;	/* depth of nesting of slow commands */
 
-extern bool
+extern jbool
 	TOabort,	/* flag set by Typeout() */
 	stickymsg,	/* the last message should stick around */
 	InputPending,	/* is there input waiting to be processed? */
 	Interactive;
 
 #ifdef UNIX
-extern bool
+extern jbool
 	InSlowRead;	/* Can we do a redisplay in a signal handler? */
 #endif
 
@@ -397,7 +397,7 @@ extern SIGRESTYPE
 	finish proto((int code)) NEVER_RETURNS,	/* doesn't return at all! */
 	win_reshape proto((int /*junk*/));
 
-extern bool
+extern jbool
 	charp proto((void));
 
 extern ZXchar
@@ -436,8 +436,8 @@ extern void
 
 /* Variables: */
 
-extern bool	MetaKey;		/* VAR: this terminal has a meta key */
-extern bool	TimeDisplayed;		/* is time actually displayed in modeline? */
+extern jbool	MetaKey;		/* VAR: this terminal has a meta key */
+extern jbool	TimeDisplayed;		/* is time actually displayed in modeline? */
 extern char	JoveFeatures[MAXCOLS];	/* VAR: list of compiled-in features */
 
 #if defined(UNIX) || defined(MINGW)
@@ -447,7 +447,7 @@ extern char	JoveLinked[MAXCOLS];	/* VAR: link flags used to build this */
 
 #ifdef UNIX
 extern int	UpdFreq;		/* VAR: how often to update modeline */
-extern void	SetClockAlarm proto((bool unset));
+extern void	SetClockAlarm proto((jbool unset));
 #endif /* UNIX */
 
-extern bool	SaveOnExit;		/* VAR: offer to save buffers on exit */
+extern jbool	SaveOnExit;		/* VAR: offer to save buffers on exit */

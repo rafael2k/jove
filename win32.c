@@ -16,7 +16,8 @@
 #include "screen.h"
 #include "disp.h"	/* for redisplay() */
 
-#undef CR /* sigh, used as field name in some windows header */
+# undef Fill /* sigh, used as a field name in some windows header! */
+# undef CR /* sigh, used as a field name in some windows header! */
 #include <windows.h>
 
 INPUT_RECORD in_event[NCHARS], *eventp = in_event;	/* Input events e.g. keyboard, mouse-click */
@@ -38,7 +39,7 @@ getTERM()
 
 void
 ttysetattr(n)
-bool	n;	/* also used as subscript! */
+jbool	n;	/* also used as subscript! */
 {
 	CONSOLE_SCREEN_BUFFER_INFO info;
 	COORD bufsize;
@@ -816,7 +817,7 @@ int	line,
 	CapLine = line;
 }
 
-private bool
+private jbool
 	doing_so = NO,
 	doing_us = NO;
 
@@ -829,7 +830,7 @@ doattr()
 
 void
 SO_effect(f)
-bool f;
+jbool f;
 {
 	doing_so = f;
 	doattr();
@@ -837,7 +838,7 @@ bool f;
 
 void
 US_effect(f)
-bool	f;
+jbool	f;
 {
 	doing_us = f;
 	doattr();

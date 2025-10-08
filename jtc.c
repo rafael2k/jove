@@ -129,6 +129,7 @@ private JTLevel jtc_emu[] = {
 	{"putty", VTALT},
 	{"linux", VT125},
 	{"screen", VTALT},
+	{"tmux", VTALT},
 	{"gnome", VTALT},
 	{"konsole", VTALT},
 	{"eterm", VTALT},
@@ -198,7 +199,7 @@ void (*putfunc) proto((int));
 {
 	const char *cp = str;
 	ZXchar c;
-	bool needflush = NO;
+	jbool needflush = NO;
 	while (cp && (c = ZXC(*cp++)) != '\0') {
 		if (c == '$') {
 			flushscreen();
