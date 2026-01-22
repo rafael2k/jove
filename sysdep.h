@@ -35,15 +35,17 @@
 # define MALLOC_CACHE 1
 # define JSMALL 1
 # define FAR_LINES 1
-# define LG_JBUFSIZE 11
+// # define LG_JBUFSIZ 11
 # define NBUF 30
 # define NO_IPROCS 1
 # define BSDPOSIX_STDC 1
 # define NO_SETLOCALE 1
-# define NO_TIOCREMOTE
+# define NO_TIOCREMOTE 1
 # define POSIX_PROCS 1
 # define NO_MKSTEMP 1
 # define JTC 1
+//# define HAVE_PTY_H	1
+//# define BSDPOSIX_STDC	1
 # define TERMCAP 1
 # define TERMIOS 1
 #endif
@@ -295,7 +297,7 @@
 #ifdef UNIX	/* Common characteristics for UNIX systems. */
 /* Our defaults tend to be conservative and lean towards pure SYSV */
 // # define USE_INO	1
-# define TERMCAP	1
+//# define TERMCAP	1
 # define USE_SELECT     1
 //# define NCURSES_BUG	1   /* almost certainly safe anyway */
 //# define WINRESIZE	1
@@ -303,7 +305,7 @@
 # define MALLOC_CACHE	1
 //# define USE_GETWD     1
 //# define PIPEPROCS	1	/* use pipes */
-# define TERMIOS	1
+//# define TERMIOS	1
 // # define TERMIO	        0	/* uses termio struct for terminal modes */
 # define LG_JBUFSIZ	10	/* so JBUFSIZ (and max line len) 1024 chars */
 // # define NBUF		10	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
