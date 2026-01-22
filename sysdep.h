@@ -41,6 +41,9 @@
 # define BSDPOSIX_STDC 1
 # define NO_SETLOCALE 1
 # define NO_TIOCREMOTE
+# define POSIX_PROCS 1
+# define NO_MKSTEMP 1
+# define JTC 1
 #endif
 
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
@@ -128,20 +131,21 @@
 # define BSDPOSIX	1
 #endif
 
-#ifdef BSDPOSIX	/* System: Posix system with BSD flavouring for ptys */
+// #ifdef BSDPOSIX	/* System: Posix system with BSD flavouring for ptys */
+#if 0
 /* System: SunOS4.1.3, DEC Ultrix 4.2 -- BSDPOSIX */
 /* System: DEC OSF/1 V1.3 -- BSDPOSIX + NO_TIOCREMOTE + NO_TIOCSIGNAL */
-# define TERMIOS	1
+// # define TERMIOS	1
 # define USE_GETCWD	1
-# define FULL_UNISTD	1
+// # define FULL_UNISTD	1
 # define USE_SELECT	1
-# if !defined(PIPEPROCS) && !defined(NO_IPROCS)	/* useful to test PIPEPROCS even on pty platforms */
-#  define PTYPROCS	1
-#  define BSD_PTYS	1	/* beware security flaw! */
-# endif
-# define POSIX_PROCS	1
+//# if !defined(PIPEPROCS) && !defined(NO_IPROCS)	/* useful to test PIPEPROCS even on pty platforms */
+//#  define PTYPROCS	1
+//#  define BSD_PTYS	1	/* beware security flaw! */
+//# endif
+// # define POSIX_PROCS	1
 // # define POSIX_SIGS	1
-# define JOB_CONTROL	1
+// # define JOB_CONTROL	1
 # define BSD_SETPGRP	1
 # define USE_KILLPG	1
 # define USE_GETPWNAM	1
