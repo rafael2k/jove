@@ -567,11 +567,21 @@ kbd_getch()
 		}
 		c = ZXRC(*bp++);
 #ifdef __ELKS__
-		/* ELKS debug: check character value */
-		if (c >= 32 && c < 127) {
-			/* Printable ASCII - should work */
-		} else if (c >= NCHARS) {
-			/* Character >= NCHARS - will be discarded */
+		/* ELKS debug: write to file */
+		{
+			static FILE *debug_fp = NULL;
+			if (debug_fp == NULL) {
+				debug_fp = fopen("/tmp/jove_debug.txt", "w");
+			}
+			if (debug_fp != NULL) {
+				if (c >= 32 && c < 127) {
+					fprintf(debug_fp, "ELKS: kbd_getch read '%c' (value %d)\n", (char)c, (int)c);
+					fflush(debug_fp);
+				} else if (c < 32) {
+					fprintf(debug_fp, "ELKS: kbd_getch read control char %d\n", (int)c);
+					fflush(debug_fp);
+				}
+			}
 		}
 #endif
 #if !defined(PCNONASCII) && !defined(MAC)	/* if not done elsewhere */
@@ -1569,7 +1579,23 @@ jbool	firsttime;
 		EventCmd = NO;
 		menus_on();
 #endif
-		dispatch(getch());
+		{
+			ZXchar c = getch();
+#ifdef __ELKS__
+			/* ELKS debug: write to file */
+			{
+				static FILE *debug_fp = NULL;
+				if (debug_fp == NULL) {
+					debug_fp = fopen("/tmp/jove_debug.txt", "a");
+				}
+				if (debug_fp != NULL && c >= 32 && c < 127) {
+					fprintf(debug_fp, "ELKS: dispatching '%c' (value %d)\n", (char)c, (int)c);
+					fflush(debug_fp);
+				}
+			}
+#endif
+			dispatch(c);
+		}
 	}
 }
 
