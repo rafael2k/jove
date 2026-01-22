@@ -40,6 +40,7 @@
 # define NO_IPROCS 1
 # define BSDPOSIX_STDC 1
 # define NO_SETLOCALE 1
+# define NO_TIOCREMOTE
 #endif
 
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
@@ -287,7 +288,7 @@
 
 #ifdef UNIX	/* Common characteristics for UNIX systems. */
 /* Our defaults tend to be conservative and lean towards pure SYSV */
-# define USE_INO	1
+// # define USE_INO	1
 # define TERMCAP	1
 # define USE_SELECT     1
 //# define NCURSES_BUG	1   /* almost certainly safe anyway */
