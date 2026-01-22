@@ -182,12 +182,13 @@ jbool	n;	/* also used as subscript! */
 
 #if defined(TERMIO) || defined(TERMIOS)
 #ifdef __ELKS__
-	/* ELKS: Set to absolute raw mode - no character translation at all */
-	sg[YES].c_iflag = 0;  /* Clear ALL input flags */
-	sg[YES].c_oflag = 0;  /* Clear ALL output flags */
-	sg[YES].c_lflag = 0;  /* Clear ALL local flags */
-	sg[YES].c_cflag &= ~(CSIZE|PARENB);  /* Keep only essential control flags */
-	sg[YES].c_cflag |= CS8;  /* 8-bit characters */
+	/* ELKS: Complete raw mode setup from scratch */
+	/* Start fresh - clear all translation flags */
+	sg[YES].c_iflag = 0;  /* No input processing */
+	sg[YES].c_oflag = 0;  /* No output processing */  
+	sg[YES].c_lflag = 0;  /* No local processing - pure raw mode */
+	/* Preserve only essential control flags: baud rate, 8-bit, no parity */
+	sg[YES].c_cflag = (sg[YES].c_cflag & (CBAUD|CREAD|CLOCAL)) | CS8;
 #else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
