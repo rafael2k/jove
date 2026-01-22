@@ -91,6 +91,12 @@ ttysetattr(n)
 jbool	n;	/* also used as subscript! */
 {
 	static jbool	keep_saved = NO;
+#ifdef __ELKS__
+	/* ELKS debug: verify this function is being called */
+	if (n == YES) {
+		/* This will show up if terminal setup is being called */
+	}
+#endif
 
 	if (!keep_saved) {
 		/* Save the current tty settings:
@@ -353,7 +359,16 @@ jbool	n;	/* also used as subscript! */
 #ifdef TERMIOS
 # ifdef __ELKS__
 	/* ELKS: use TCSANOW for immediate effect */
-	do {} while (tcsetattr(0, TCSANOW, &sg[n]) < 0 && errno == EINTR);
+	{
+		int ret;
+		do {
+			ret = tcsetattr(0, TCSANOW, &sg[n]);
+		} while (ret < 0 && errno == EINTR);
+		if (ret < 0 && n == YES) {
+			/* Failed to set terminal - this is critical for ELKS */
+			write(2, "ELKS: tcsetattr failed!\n", 24);
+		}
+	}
 # else
 	do {} while (tcsetattr(0, TCSADRAIN, &sg[n]) < 0 && errno == EINTR);
 # endif
