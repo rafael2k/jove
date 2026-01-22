@@ -181,23 +181,20 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #if defined(TERMIO) || defined(TERMIOS)
+#ifdef __ELKS__
+	/* ELKS: Set to absolute raw mode - no character translation at all */
+	sg[YES].c_iflag = 0;  /* Clear ALL input flags */
+	sg[YES].c_oflag = 0;  /* Clear ALL output flags */
+	sg[YES].c_lflag = 0;  /* Clear ALL local flags */
+	sg[YES].c_cflag &= ~(CSIZE|PARENB);  /* Keep only essential control flags */
+	sg[YES].c_cflag |= CS8;  /* 8-bit characters */
+#else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
-#ifdef __ELKS__
-	/* ELKS: disable all input processing flags that could interfere */
-	sg[YES].c_iflag &= ~(IGNBRK|BRKINT|ISTRIP|INLCR|IGNCR|ICRNL|IXON|IXOFF
-#ifdef IXANY
-			     |IXANY
-#endif
-#ifdef IMAXBEL
-			     |IMAXBEL
-#endif
-			     );
-#else
 	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR | (MetaKey? ISTRIP : 0));
-#endif
 	sg[YES].c_lflag &= ~(ICANON|ECHO);
 	sg[YES].c_oflag &= ~(OPOST);
+#endif
 
 	/* Set all those c_cc elements that we must.
 	 * For peculiar systems, one might wish to predefine JVDISABLE
@@ -225,6 +222,34 @@ jbool	n;	/* also used as subscript! */
 #  endif /* !_POSIX_VDISABLE */
 # endif /* JVDISABLE */
 
+#ifdef __ELKS__
+		/* ELKS: Disable all special character processing */
+		sg[YES].c_cc[VINTR] = 0;
+# ifdef VQUIT
+		sg[YES].c_cc[VQUIT] = 0;
+# endif
+		/* VERASE, VKILL, VEOL2 irrelevant */
+		/* Beware aliasing! VMIN is VEOF and VTIME is VEOL */
+		sg[YES].c_cc[VMIN] = 1;
+		sg[YES].c_cc[VTIME] = 0;
+# ifdef VSWTCH
+		sg[YES].c_cc[VSWTCH] = 0;
+# endif
+# ifdef TERMIOS
+#  ifdef VSUSP
+		sg[YES].c_cc[VSUSP] = 0;
+#  endif
+#  ifdef VDSUSP
+		sg[YES].c_cc[VDSUSP] = 0;
+#  endif
+#  ifdef VDISCARD
+		sg[YES].c_cc[VDISCARD] = 0;
+#  endif
+#  ifdef VLNEXT
+		sg[YES].c_cc[VLNEXT] = 0;
+#  endif
+# endif /* TERMIOS */
+#else
 		sg[YES].c_cc[VINTR] = IntChar;
 
 # ifdef VQUIT
@@ -262,11 +287,6 @@ jbool	n;	/* also used as subscript! */
 #  endif
 # endif /* TERMIOS */
 
-#ifdef __ELKS__
-		/* ELKS: use immediate return for better responsiveness */
-		sg[YES].c_cc[VMIN] = 1;
-		sg[YES].c_cc[VTIME] = 0;
-#else
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;
 #endif
