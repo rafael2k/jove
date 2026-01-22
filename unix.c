@@ -184,8 +184,15 @@ jbool	n;	/* also used as subscript! */
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
 #ifdef __ELKS__
-	/* ELKS: disable ISTRIP unconditionally to ensure 8-bit characters work */
-	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR|ISTRIP);
+	/* ELKS: disable all input processing flags that could interfere */
+	sg[YES].c_iflag &= ~(IGNBRK|BRKINT|ISTRIP|INLCR|IGNCR|ICRNL|IXON|IXOFF
+#ifdef IXANY
+			     |IXANY
+#endif
+#ifdef IMAXBEL
+			     |IMAXBEL
+#endif
+			     );
 #else
 	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR | (MetaKey? ISTRIP : 0));
 #endif
@@ -323,7 +330,12 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #ifdef TERMIOS
+# ifdef __ELKS__
+	/* ELKS: use TCSANOW for immediate effect */
+	do {} while (tcsetattr(0, TCSANOW, &sg[n]) < 0 && errno == EINTR);
+# else
 	do {} while (tcsetattr(0, TCSADRAIN, &sg[n]) < 0 && errno == EINTR);
+# endif
 #endif
 
 #ifdef USE_TIOCSLTC
