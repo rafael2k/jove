@@ -549,6 +549,26 @@ kbd_getch()
 			} else /*...*/
 #   endif /* PIPEPROCS */
 			/*...*/ {
+#ifdef __ELKS__
+				/* ELKS: Use kilo.c approach - read one byte at a time with timeout */
+				unsigned char c;
+				int nread;
+				InSlowRead = YES;
+				while ((nread = read(0, &c, 1)) == 0);  /* Loop until we get a character */
+				InSlowRead = NO;
+				if (nread < 0) {
+					if (RETRY_ERRNO(errno))
+						continue;  /* Retry on EINTR/EAGAIN */
+					finish(SIGHUP);
+				}
+				if (nread == 1) {
+					smbuf[0] = c;
+					nchars = 1;
+					bp = smbuf;
+				} else {
+					finish(SIGHUP);
+				}
+#else
 				do {
 #   ifdef UNIX
 					InSlowRead = YES;
@@ -560,6 +580,7 @@ kbd_getch()
 				} while (nchars < 0 && RETRY_ERRNO(errno));
 				if (nchars <= 0)
 					finish(SIGHUP);
+#endif
 			}
 #  endif /* !PTYPROCS */
 # endif /* !WIN32 */

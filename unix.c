@@ -181,11 +181,26 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #if defined(TERMIO) || defined(TERMIOS)
+#ifdef __ELKS__
+	/* ELKS: Use kilo.c approach - clear specific flags, not everything */
+	/* input modes: no break, no CR to NL, no parity check, no strip char, no start/stop output control */
+	sg[YES].c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+	if (!OKXonXoff)
+		sg[YES].c_iflag |= IXON | IXOFF;  /* restore if not OK */
+	/* output modes - disable post processing */
+	sg[YES].c_oflag &= ~(OPOST);
+	/* control modes - set 8 bit chars */
+	sg[YES].c_cflag &= ~(CSIZE);
+	sg[YES].c_cflag |= CS8;
+	/* local modes - echo off, canonical off, no extended functions, no signal chars */
+	sg[YES].c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+#else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
 	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR | (MetaKey? ISTRIP : 0));
 	sg[YES].c_lflag &= ~(ICANON|ECHO);
 	sg[YES].c_oflag &= ~(OPOST);
+#endif
 
 	/* Set all those c_cc elements that we must.
 	 * For peculiar systems, one might wish to predefine JVDISABLE
@@ -250,8 +265,14 @@ jbool	n;	/* also used as subscript! */
 #  endif
 # endif /* TERMIOS */
 
+#ifdef __ELKS__
+		/* ELKS: Use kilo.c approach - timed wait instead of blocking */
+		sg[YES].c_cc[VMIN] = 0;  /* Timed wait for input */
+		sg[YES].c_cc[VTIME] = 2; /* 200 ms timeout (unit is tens of second) */
+#else
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;
+#endif
 	}
 #endif /* defined(TERMIO) || defined(TERMIOS) */
 
@@ -312,7 +333,12 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #ifdef TERMIOS
+# ifdef __ELKS__
+	/* ELKS: Use kilo.c approach - TCSAFLUSH to flush input/output before setting */
+	do {} while (tcsetattr(0, TCSAFLUSH, &sg[n]) < 0 && errno == EINTR);
+# else
 	do {} while (tcsetattr(0, TCSADRAIN, &sg[n]) < 0 && errno == EINTR);
+# endif
 #endif
 
 #ifdef USE_TIOCSLTC
