@@ -188,13 +188,23 @@ jbool	n;	/* also used as subscript! */
 
 #if defined(TERMIO) || defined(TERMIOS)
 #ifdef __ELKS__
-	/* ELKS: Complete raw mode setup from scratch */
-	/* Start fresh - clear all translation flags */
-	sg[YES].c_iflag = 0;  /* No input processing */
-	sg[YES].c_oflag = 0;  /* No output processing */  
-	sg[YES].c_lflag = 0;  /* No local processing - pure raw mode */
-	/* Preserve only essential control flags: baud rate, 8-bit, no parity */
-	sg[YES].c_cflag = (sg[YES].c_cflag & (CBAUD|CREAD|CLOCAL)) | CS8;
+	/* ELKS: Explicitly disable canonical mode and all character translation */
+	/* Clear input processing flags */
+	sg[YES].c_iflag &= ~(IGNBRK|BRKINT|ISTRIP|INLCR|IGNCR|ICRNL|IXON|IXOFF
+#ifdef IXANY
+			     |IXANY
+#endif
+#ifdef IMAXBEL
+			     |IMAXBEL
+#endif
+			     );
+	/* Clear output processing */
+	sg[YES].c_oflag &= ~OPOST;
+	/* CRITICAL: Explicitly disable canonical mode - this is the key! */
+	sg[YES].c_lflag &= ~(ICANON|ECHO|ISIG|IEXTEN|NOFLSH|TOSTOP);
+	/* Ensure 8-bit characters */
+	sg[YES].c_cflag &= ~(CSIZE|PARENB);
+	sg[YES].c_cflag |= CS8;
 #else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
@@ -361,10 +371,20 @@ jbool	n;	/* also used as subscript! */
 	/* ELKS: use TCSANOW for immediate effect */
 	{
 		int ret;
+		struct termios verify;
 		do {
 			ret = tcsetattr(0, TCSANOW, &sg[n]);
 		} while (ret < 0 && errno == EINTR);
-		if (ret < 0 && n == YES) {
+		if (ret == 0 && n == YES) {
+			/* Verify terminal was actually set */
+			if (tcgetattr(0, &verify) == 0) {
+				/* Check if canonical mode is actually disabled */
+				if (verify.c_lflag & ICANON) {
+					/* Terminal is still in canonical mode! */
+					write(2, "ELKS: WARNING - terminal still canonical!\n", 43);
+				}
+			}
+		} else if (ret < 0 && n == YES) {
 			/* Failed to set terminal - this is critical for ELKS */
 			write(2, "ELKS: tcsetattr failed!\n", 24);
 		}

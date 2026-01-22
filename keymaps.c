@@ -938,9 +938,20 @@ ZXchar c;
 		}
 		if (!still_hope) {
 			char strokes[128];
-
+#ifdef __ELKS__
+			/* ELKS debug: show what character wasn't found */
+			if (c >= 32 && c < 127) {
+				char dbg[64];
+				swritef(dbg, sizeof(dbg), "[ELKS: char '%c' (%d) unbound]", (char)c, (int)c);
+				s_mess("%s", dbg);
+			} else {
+				pp_key_strokes(strokes, sizeof(strokes));
+				s_mess("[%sunbound]", strokes);
+			}
+#else
 			pp_key_strokes(strokes, sizeof(strokes));
 			s_mess("[%sunbound]", strokes);
+#endif
 			rbell();
 			clr_arg_value();
 			stickymsg = NO;

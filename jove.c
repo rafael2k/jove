@@ -566,6 +566,14 @@ kbd_getch()
 #endif /* !MSDOS */
 		}
 		c = ZXRC(*bp++);
+#ifdef __ELKS__
+		/* ELKS debug: check character value */
+		if (c >= 32 && c < 127) {
+			/* Printable ASCII - should work */
+		} else if (c >= NCHARS) {
+			/* Character >= NCHARS - will be discarded */
+		}
+#endif
 #if !defined(PCNONASCII) && !defined(MAC)	/* if not done elsewhere */
 		if ((c & METABIT) && MetaKey) {
 			*--bp = c & ~METABIT;
