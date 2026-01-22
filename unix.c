@@ -91,12 +91,6 @@ ttysetattr(n)
 jbool	n;	/* also used as subscript! */
 {
 	static jbool	keep_saved = NO;
-#ifdef __ELKS__
-	/* ELKS debug: verify this function is being called */
-	if (n == YES) {
-		/* This will show up if terminal setup is being called */
-	}
-#endif
 
 	if (!keep_saved) {
 		/* Save the current tty settings:
@@ -187,23 +181,11 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #if defined(TERMIO) || defined(TERMIOS)
-#ifdef __ELKS__
-	/* ELKS: Force raw mode - disable EVERYTHING that processes characters */
-	/* Zero out all input flags */
-	sg[YES].c_iflag = 0;
-	/* Zero out all output flags */  
-	sg[YES].c_oflag = 0;
-	/* Zero out all local flags - THIS DISABLES CANONICAL MODE */
-	sg[YES].c_lflag = 0;
-	/* Keep only baud rate and 8-bit mode in control flags */
-	sg[YES].c_cflag = (sg[YES].c_cflag & CBAUD) | CS8 | CREAD;
-#else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
 	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR | (MetaKey? ISTRIP : 0));
 	sg[YES].c_lflag &= ~(ICANON|ECHO);
 	sg[YES].c_oflag &= ~(OPOST);
-#endif
 
 	/* Set all those c_cc elements that we must.
 	 * For peculiar systems, one might wish to predefine JVDISABLE
@@ -231,34 +213,6 @@ jbool	n;	/* also used as subscript! */
 #  endif /* !_POSIX_VDISABLE */
 # endif /* JVDISABLE */
 
-#ifdef __ELKS__
-		/* ELKS: Disable all special character processing */
-		sg[YES].c_cc[VINTR] = 0;
-# ifdef VQUIT
-		sg[YES].c_cc[VQUIT] = 0;
-# endif
-		/* VERASE, VKILL, VEOL2 irrelevant */
-		/* Beware aliasing! VMIN is VEOF and VTIME is VEOL */
-		sg[YES].c_cc[VMIN] = 1;
-		sg[YES].c_cc[VTIME] = 0;
-# ifdef VSWTCH
-		sg[YES].c_cc[VSWTCH] = 0;
-# endif
-# ifdef TERMIOS
-#  ifdef VSUSP
-		sg[YES].c_cc[VSUSP] = 0;
-#  endif
-#  ifdef VDSUSP
-		sg[YES].c_cc[VDSUSP] = 0;
-#  endif
-#  ifdef VDISCARD
-		sg[YES].c_cc[VDISCARD] = 0;
-#  endif
-#  ifdef VLNEXT
-		sg[YES].c_cc[VLNEXT] = 0;
-#  endif
-# endif /* TERMIOS */
-#else
 		sg[YES].c_cc[VINTR] = IntChar;
 
 # ifdef VQUIT
@@ -298,7 +252,6 @@ jbool	n;	/* also used as subscript! */
 
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;
-#endif
 	}
 #endif /* defined(TERMIO) || defined(TERMIOS) */
 
@@ -359,31 +312,7 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #ifdef TERMIOS
-# ifdef __ELKS__
-	/* ELKS: use TCSANOW for immediate effect */
-	{
-		int ret;
-		struct termios verify;
-		do {
-			ret = tcsetattr(0, TCSANOW, &sg[n]);
-		} while (ret < 0 && errno == EINTR);
-		if (ret == 0 && n == YES) {
-			/* Verify terminal was actually set */
-			if (tcgetattr(0, &verify) == 0) {
-				/* Check if canonical mode is actually disabled */
-				if (verify.c_lflag & ICANON) {
-					/* Terminal is still in canonical mode! */
-					write(2, "ELKS: WARNING - terminal still canonical!\n", 43);
-				}
-			}
-		} else if (ret < 0 && n == YES) {
-			/* Failed to set terminal - this is critical for ELKS */
-			write(2, "ELKS: tcsetattr failed!\n", 24);
-		}
-	}
-# else
 	do {} while (tcsetattr(0, TCSADRAIN, &sg[n]) < 0 && errno == EINTR);
-# endif
 #endif
 
 #ifdef USE_TIOCSLTC

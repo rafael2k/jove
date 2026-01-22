@@ -187,7 +187,7 @@ getTERM()
 		termname = termnmbuf;
 	}
 
-#ifdef TODO
+#if 0
 	if (tgetent(tbuff, termname) < 1)
 		tcbad(termname, "type unknown");
 #endif
@@ -247,7 +247,7 @@ getTERM()
 	&& strcmp(LcCtype, "C") == 0
 #  endif
 	)
-		MetaKey = YES;	/* has meta-key and default locale */
+            MetaKey = YES;	/* has meta-key and default locale */
 
 	if (tgetflag("xs") == YES) {
 		SO = SE = NULL;	/* don't use braindamaged standout mode */

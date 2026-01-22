@@ -553,47 +553,7 @@ kbd_getch()
 #   ifdef UNIX
 					InSlowRead = YES;
 #   endif
-#ifdef __ELKS__
-					/* ELKS debug: log before read - try multiple locations */
-					{
-						static FILE *dbg = NULL;
-						static int tried = 0;
-						if (dbg == NULL && !tried) {
-							tried = 1;
-							dbg = fopen("/tmp/jove_read.txt", "w");
-							if (dbg == NULL) dbg = fopen("/jove_read.txt", "w");
-							if (dbg == NULL) dbg = fopen("jove_read.txt", "w");
-						}
-						if (dbg != NULL) {
-							fprintf(dbg, "ELKS: About to read from stdin...\n");
-							fflush(dbg);
-						}
-					}
-#endif
 					nchars = read(0, (UnivPtr) smbuf, sizeof smbuf);
-#ifdef __ELKS__
-					/* ELKS debug: log after read */
-					{
-						static FILE *dbg = NULL;
-						if (dbg == NULL) {
-							dbg = fopen("/tmp/jove_read.txt", "a");
-							if (dbg == NULL) dbg = fopen("/jove_read.txt", "a");
-							if (dbg == NULL) dbg = fopen("jove_read.txt", "a");
-						}
-						if (dbg != NULL) {
-							fprintf(dbg, "ELKS: read() returned %d bytes\n", nchars);
-							if (nchars > 0) {
-								fprintf(dbg, "ELKS: first byte = %d (0x%02x)", 
-									(unsigned char)smbuf[0], (unsigned char)smbuf[0]);
-								if (smbuf[0] >= 32 && smbuf[0] < 127) {
-									fprintf(dbg, " '%c'", smbuf[0]);
-								}
-								fprintf(dbg, "\n");
-							}
-							fflush(dbg);
-						}
-					}
-#endif
 #   ifdef UNIX
 					InSlowRead = NO;
 #   endif
@@ -606,24 +566,6 @@ kbd_getch()
 #endif /* !MSDOS */
 		}
 		c = ZXRC(*bp++);
-#ifdef __ELKS__
-		/* ELKS debug: write to file */
-		{
-			static FILE *debug_fp = NULL;
-			if (debug_fp == NULL) {
-				debug_fp = fopen("/tmp/jove_debug.txt", "w");
-			}
-			if (debug_fp != NULL) {
-				if (c >= 32 && c < 127) {
-					fprintf(debug_fp, "ELKS: kbd_getch read '%c' (value %d)\n", (char)c, (int)c);
-					fflush(debug_fp);
-				} else if (c < 32) {
-					fprintf(debug_fp, "ELKS: kbd_getch read control char %d\n", (int)c);
-					fflush(debug_fp);
-				}
-			}
-		}
-#endif
 #if !defined(PCNONASCII) && !defined(MAC)	/* if not done elsewhere */
 		if ((c & METABIT) && MetaKey) {
 			*--bp = c & ~METABIT;
@@ -1619,23 +1561,7 @@ jbool	firsttime;
 		EventCmd = NO;
 		menus_on();
 #endif
-		{
-			ZXchar c = getch();
-#ifdef __ELKS__
-			/* ELKS debug: write to file */
-			{
-				static FILE *debug_fp = NULL;
-				if (debug_fp == NULL) {
-					debug_fp = fopen("/tmp/jove_debug.txt", "a");
-				}
-				if (debug_fp != NULL && c >= 32 && c < 127) {
-					fprintf(debug_fp, "ELKS: dispatching '%c' (value %d)\n", (char)c, (int)c);
-					fflush(debug_fp);
-				}
-			}
-#endif
-			dispatch(c);
-		}
+		dispatch(getch());
 	}
 }
 

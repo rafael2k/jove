@@ -48,6 +48,7 @@
 //# define BSDPOSIX_STDC	1
 # define TERMCAP 1
 # define TERMIOS 1
+# define ID_CHAR 1
 #endif
 
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
