@@ -1140,10 +1140,11 @@ proc_strt(bufname, clobber, procname, va_alist)
 		jdbg("child setsid %s\n", ttybuf);
 		setsid();
 # else /* !TERMIOS */
-#  ifdef TIOCNOTTY
+#if 0
+//#  ifdef TIOCNOTTY
 		/* get rid of controlling tty */
 		{
-			int	i = open("/dev/tty", O_RDWR | O_BINARY);
+			int	i = open("/dev/tty1", O_RDWR | O_BINARY);
 
 			jdbg("child TIOCNOTTY %d %s\n", i, ttybuf);
 			if (i >= 0) {

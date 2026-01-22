@@ -1591,6 +1591,11 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 	off_t boff = bno_to_seek_off(b->b_bno);
 	JSSIZE_T nb;
 	static jbool first_time = YES;
+#if 0
+	long boff = bno_to_seek_off(b->b_bno);
+	long nb;
+	static bool first_time = YES;
+#endif
 
 	if (first_time) {
 		tmpinit();
