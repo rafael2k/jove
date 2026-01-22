@@ -183,7 +183,12 @@ jbool	n;	/* also used as subscript! */
 #if defined(TERMIO) || defined(TERMIOS)
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
+#ifdef __ELKS__
+	/* ELKS: disable ISTRIP unconditionally to ensure 8-bit characters work */
+	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR|ISTRIP);
+#else
 	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR | (MetaKey? ISTRIP : 0));
+#endif
 	sg[YES].c_lflag &= ~(ICANON|ECHO);
 	sg[YES].c_oflag &= ~(OPOST);
 
@@ -250,8 +255,14 @@ jbool	n;	/* also used as subscript! */
 #  endif
 # endif /* TERMIOS */
 
+#ifdef __ELKS__
+		/* ELKS: use immediate return for better responsiveness */
+		sg[YES].c_cc[VMIN] = 1;
+		sg[YES].c_cc[VTIME] = 0;
+#else
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;
+#endif
 	}
 #endif /* defined(TERMIO) || defined(TERMIOS) */
 
