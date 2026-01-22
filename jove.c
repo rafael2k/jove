@@ -553,7 +553,47 @@ kbd_getch()
 #   ifdef UNIX
 					InSlowRead = YES;
 #   endif
+#ifdef __ELKS__
+					/* ELKS debug: log before read - try multiple locations */
+					{
+						static FILE *dbg = NULL;
+						static int tried = 0;
+						if (dbg == NULL && !tried) {
+							tried = 1;
+							dbg = fopen("/tmp/jove_read.txt", "w");
+							if (dbg == NULL) dbg = fopen("/jove_read.txt", "w");
+							if (dbg == NULL) dbg = fopen("jove_read.txt", "w");
+						}
+						if (dbg != NULL) {
+							fprintf(dbg, "ELKS: About to read from stdin...\n");
+							fflush(dbg);
+						}
+					}
+#endif
 					nchars = read(0, (UnivPtr) smbuf, sizeof smbuf);
+#ifdef __ELKS__
+					/* ELKS debug: log after read */
+					{
+						static FILE *dbg = NULL;
+						if (dbg == NULL) {
+							dbg = fopen("/tmp/jove_read.txt", "a");
+							if (dbg == NULL) dbg = fopen("/jove_read.txt", "a");
+							if (dbg == NULL) dbg = fopen("jove_read.txt", "a");
+						}
+						if (dbg != NULL) {
+							fprintf(dbg, "ELKS: read() returned %d bytes\n", nchars);
+							if (nchars > 0) {
+								fprintf(dbg, "ELKS: first byte = %d (0x%02x)", 
+									(unsigned char)smbuf[0], (unsigned char)smbuf[0]);
+								if (smbuf[0] >= 32 && smbuf[0] < 127) {
+									fprintf(dbg, " '%c'", smbuf[0]);
+								}
+								fprintf(dbg, "\n");
+							}
+							fflush(dbg);
+						}
+					}
+#endif
 #   ifdef UNIX
 					InSlowRead = NO;
 #   endif

@@ -188,23 +188,15 @@ jbool	n;	/* also used as subscript! */
 
 #if defined(TERMIO) || defined(TERMIOS)
 #ifdef __ELKS__
-	/* ELKS: Explicitly disable canonical mode and all character translation */
-	/* Clear input processing flags */
-	sg[YES].c_iflag &= ~(IGNBRK|BRKINT|ISTRIP|INLCR|IGNCR|ICRNL|IXON|IXOFF
-#ifdef IXANY
-			     |IXANY
-#endif
-#ifdef IMAXBEL
-			     |IMAXBEL
-#endif
-			     );
-	/* Clear output processing */
-	sg[YES].c_oflag &= ~OPOST;
-	/* CRITICAL: Explicitly disable canonical mode - this is the key! */
-	sg[YES].c_lflag &= ~(ICANON|ECHO|ISIG|IEXTEN|NOFLSH|TOSTOP);
-	/* Ensure 8-bit characters */
-	sg[YES].c_cflag &= ~(CSIZE|PARENB);
-	sg[YES].c_cflag |= CS8;
+	/* ELKS: Force raw mode - disable EVERYTHING that processes characters */
+	/* Zero out all input flags */
+	sg[YES].c_iflag = 0;
+	/* Zero out all output flags */  
+	sg[YES].c_oflag = 0;
+	/* Zero out all local flags - THIS DISABLES CANONICAL MODE */
+	sg[YES].c_lflag = 0;
+	/* Keep only baud rate and 8-bit mode in control flags */
+	sg[YES].c_cflag = (sg[YES].c_cflag & CBAUD) | CS8 | CREAD;
 #else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
