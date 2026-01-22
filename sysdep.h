@@ -44,6 +44,8 @@
 # define POSIX_PROCS 1
 # define NO_MKSTEMP 1
 # define JTC 1
+# define TERMCAP 1
+# define TERMIOS 1
 #endif
 
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
