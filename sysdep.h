@@ -50,8 +50,10 @@
 //# define HAVE_PTY_H	1
 //# define BSDPOSIX_STDC	1
 # define TERMCAP 1
+# define USE_TIOCGETC
 # define TERMIOS 1
-# define ID_CHAR 1
+// define TERMIO 1
+//# define ID_CHAR 1
 #endif
 
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
