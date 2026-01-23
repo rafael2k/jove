@@ -1644,10 +1644,6 @@ jbool	firsttime;
 		menus_on();
 #endif
 		dispatch(getch());
-		/* Ensure screen is updated after command if needed */
-		if (!DisabledRedisplay && UpdModLine) {
-			redisplay();
-		}
 	}
 }
 
