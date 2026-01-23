@@ -30,6 +30,27 @@
 # define PNAME_SYSCTL_OID	{CTL_KERN,KERN_PROC,KERN_PROC_PATHNAME,-1}
 #endif
 
+#ifdef __ELKS__
+/* System: ELKS (Embeddable Linux Kernel Subset) */
+# define MALLOC_CACHE 1
+# define JSMALL 1
+# define FAR_LINES 1
+# ifndef _far
+#  define _far		/* empty for non-DOS systems */
+# endif
+# define NBUF 30
+# define NO_IPROCS 1
+# define BSDPOSIX_STDC 1
+# define NO_SETLOCALE 1
+# define NO_TIOCREMOTE 1
+# define POSIX_PROCS 1
+# define NO_MKSTEMP 1
+# define JTC 1
+# define TERMCAP 1
+# define USE_TIOCGETC 1
+# define TERMIOS 1
+#endif
+
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
 /* System: modern OpenBSD, Darwin Mac OSX */
 # define BSDPOSIX_STDC	1
