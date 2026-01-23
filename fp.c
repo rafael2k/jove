@@ -266,14 +266,22 @@ register File	*fp;
 			JSSIZE_T
 				n = fp->f_ptr - p,
 				wr;
+#ifdef __ELKS__
+			/* ELKS: Write in small chunks (64 bytes max) to avoid buffer issues */
+			JSSIZE_T chunk_size = n;
+			if (chunk_size > 64)
+				chunk_size = 64;
+#else
+			JSSIZE_T chunk_size = n;
+#endif
 
 			if (n <= 0)
 				break;
 
 #ifdef RAINBOW
-			wr = rbwrite(fp->f_fd, (UnivPtr) p, (size_t)n);
+			wr = rbwrite(fp->f_fd, (UnivPtr) p, (size_t)chunk_size);
 #else
-			wr = write(fp->f_fd, (UnivPtr) p, (size_t)n);
+			wr = write(fp->f_fd, (UnivPtr) p, (size_t)chunk_size);
 #endif
 			if (wr >= 0) {
 				p += wr;

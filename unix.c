@@ -519,7 +519,13 @@ settout()
 	}
 
 	flushscreen();		/* flush the one character buffer */
+#ifdef __ELKS__
+	/* ELKS: Use smaller buffer size to avoid write() issues */
+	/* Keep buffer small (64-128 bytes) to match chunk size in flushout() */
+	ScrBufSize = jmin(128, jmin(MAXTTYBUF, speed_chars * jmax(LI / 24, 1)));
+#else
 	ScrBufSize = jmin(MAXTTYBUF, speed_chars * jmax(LI / 24, 1));
+#endif
 #ifndef NO_JSTDOUT
 	jstdout = fd_open("/dev/tty", F_WRITE|F_LOCKED, 1, (char *)NULL, ScrBufSize);
 #endif
