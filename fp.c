@@ -225,6 +225,13 @@ void
 flushscreen()
 {
 	flushout(jstdout);
+#ifdef __ELKS__
+	/* ELKS: Force terminal output to be sent immediately */
+	/* This ensures screen updates are visible right away */
+	if (jstdout != NULL && jstdout->f_fd >= 0) {
+		fsync(jstdout->f_fd);
+	}
+#endif
 }
 #endif /* !NO_JSTDOUT */
 

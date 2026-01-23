@@ -276,6 +276,10 @@ redisplay()
 			GotoDot();
 		}
 suppress: ;
+#ifdef __ELKS__
+	/* ELKS: Force screen output to be flushed after redisplay */
+	flushscreen();
+#endif
 	}
 #ifdef WINRESIZE
 	/**/ while (ResizePending);
