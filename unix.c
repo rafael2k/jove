@@ -266,10 +266,10 @@ jbool	n;	/* also used as subscript! */
 		/* ELKS: Experiment with different timeout values for better responsiveness
 		 * VMIN=0 means return immediately if no data
 		 * VTIME controls timeout: 0=immediate, 1=100ms, 2=200ms, etc.
-		 * Try different values: 0 for immediate (most responsive), 1-2 for stability
+		 * VTIME=1 gives a small window for terminal output to complete while staying responsive
 		 */
 		sg[YES].c_cc[VMIN] = 0;
-		sg[YES].c_cc[VTIME] = 0;  /* 0 = immediate return, no timeout - most responsive */
+		sg[YES].c_cc[VTIME] = 1;  /* 100ms timeout - balances responsiveness with stability */
 #else
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;
