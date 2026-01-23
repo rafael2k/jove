@@ -549,6 +549,86 @@ kbd_getch()
 			} else /*...*/
 #   endif /* PIPEPROCS */
 			/*...*/ {
+#ifdef __ELKS__
+				/* ELKS: Handle ANSI escape sequences for arrow keys */
+				unsigned char c, seq[3];
+				int nread;
+				InSlowRead = YES;
+				while ((nread = read(0, &c, 1)) == 0);  /* Loop until we get a character */
+				InSlowRead = NO;
+				if (nread < 0) {
+					if (RETRY_ERRNO(errno))
+						continue;  /* Retry on EINTR/EAGAIN */
+					finish(SIGHUP);
+				}
+				if (nread == 1) {
+					if (c == ESC) {
+						/* Check if this is an ANSI escape sequence */
+						InSlowRead = YES;
+						nread = read(0, seq, 1);
+						if (nread == 1 && seq[0] == '[') {
+							/* ESC [ sequence - read the next byte */
+							if (read(0, seq+1, 1) == 1) {
+								/* Map ANSI arrow keys to control characters */
+								switch (seq[1]) {
+								case 'A': /* Up arrow -> ^P (previous-line) */
+									c = 0x10;  /* Ctrl-P */
+									break;
+								case 'B': /* Down arrow -> ^N (next-line) */
+									c = 0x0E;  /* Ctrl-N */
+									break;
+								case 'C': /* Right arrow -> ^F (forward-character) */
+									c = 0x06;  /* Ctrl-F */
+									break;
+								case 'D': /* Left arrow -> ^B (backward-character) */
+									c = 0x02;  /* Ctrl-B */
+									break;
+								default:
+									/* Unknown sequence - put bytes back as ESC [ X */
+									smbuf[0] = ESC;
+									smbuf[1] = '[';
+									smbuf[2] = seq[1];
+									nchars = 3;
+									bp = smbuf;
+									InSlowRead = NO;
+									goto elks_done;
+								}
+								/* Single character mapped */
+								smbuf[0] = c;
+								nchars = 1;
+								bp = smbuf;
+								InSlowRead = NO;
+							} else {
+								/* Incomplete sequence - treat as ESC [ */
+								smbuf[0] = ESC;
+								smbuf[1] = '[';
+								nchars = 2;
+								bp = smbuf;
+								InSlowRead = NO;
+							}
+						} else {
+							/* Just ESC or ESC followed by non-[ */
+							if (nread == 1 && seq[0] != '[') {
+								/* Push back the byte we read */
+								kbd_ungetch(ZXRC(seq[0]));
+							}
+							smbuf[0] = ESC;
+							nchars = 1;
+							bp = smbuf;
+							InSlowRead = NO;
+						}
+					} else {
+						/* Regular character */
+						smbuf[0] = c;
+						nchars = 1;
+						bp = smbuf;
+					}
+elks_done:
+					;
+				} else {
+					finish(SIGHUP);
+				}
+#else
 				do {
 #   ifdef UNIX
 					InSlowRead = YES;
@@ -560,6 +640,7 @@ kbd_getch()
 				} while (nchars < 0 && RETRY_ERRNO(errno));
 				if (nchars <= 0)
 					finish(SIGHUP);
+#endif
 			}
 #  endif /* !PTYPROCS */
 # endif /* !WIN32 */
@@ -1562,6 +1643,10 @@ jbool	firsttime;
 		menus_on();
 #endif
 		dispatch(getch());
+		/* Ensure screen is refreshed after command if needed */
+		if (!DisabledRedisplay && UpdModLine) {
+			redisplay();
+		}
 	}
 }
 

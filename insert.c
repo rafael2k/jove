@@ -101,6 +101,7 @@ register long	num;
 	if (curwind->w_bufp == curbuf) {
 		curwind->w_line = curline;
 		curwind->w_char = curchar;
+		UpdModLine = YES;  /* Force screen refresh */
 	}
 }
 
