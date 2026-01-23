@@ -1659,13 +1659,6 @@ jbool	firsttime;
 		menus_on();
 #endif
 		dispatch(getch());
-		/* Ensure screen is refreshed after command */
-		if (!DisabledRedisplay) {
-			/* Flush any pending output first */
-			flushscreen();
-			/* Force redisplay after commands that modify the buffer */
-			redisplay();
-		}
 	}
 }
 

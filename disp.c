@@ -214,13 +214,8 @@ redisplay()
 		 */
 		InputPending = NO;
 #else
-#ifdef __ELKS__
-		/* ELKS: Always allow redisplay, don't skip due to pending input */
-		/* This ensures screen updates happen even when there's pending input */
-#else
 		if (PreEmptOutput())
 			return;
-#endif
 #endif
 		if (RingBell) {
 			dobell(1);
@@ -245,13 +240,7 @@ redisplay()
 		 * we can't be sure that the updating has happened.
 		 */
 		old_UpdModLine = UpdModLine;
-#ifdef __ELKS__
-		/* ELKS: Don't clear UpdModLine immediately - let it persist
-		 * so screen updates are forced even if PreEmptOutput was called */
-		/* UpdModLine = NO; */
-#else
 		UpdModLine = NO;
-#endif
 
 		des_p = DesiredScreen;
 		phys_p = PhysScreen;
