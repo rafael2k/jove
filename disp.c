@@ -581,11 +581,6 @@ jbool	abortable;
 		UpdMesg = NO;
 	}
 	flushscreen();
-#ifdef __ELKS__
-	/* ELKS: Extra flush to ensure kernel buffers are drained */
-	/* This helps prevent error 24 (buffer overflow) */
-	flushscreen();
-#endif
 }
 
 /* Goto the current position in the current window.  Presumably redisplay()

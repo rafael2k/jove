@@ -224,16 +224,7 @@ register File	*fp;
 void
 flushscreen()
 {
-#ifdef __ELKS__
-	/* ELKS: Flush frequently in small chunks to prevent kernel buffer overflow */
-	/* Break up large buffers into smaller flushes */
-	if (jstdout->f_ptr > jstdout->f_base) {
-		/* Flush what we have so far */
-		flushout(jstdout);
-	}
-#else
 	flushout(jstdout);
-#endif
 #ifdef __ELKS__
 	/* ELKS: Force terminal output to be sent immediately */
 	/* Like kilo.c, we rely on write() completing - no fsync needed */
@@ -275,34 +266,17 @@ register File	*fp;
 			JSSIZE_T
 				n = fp->f_ptr - p,
 				wr;
-#ifdef __ELKS__
-			/* ELKS: Write in very small chunks (32 bytes max) to avoid kernel buffer issues */
-			JSSIZE_T chunk_size = n;
-			if (chunk_size > 32)
-				chunk_size = 32;
-#else
-			JSSIZE_T chunk_size = n;
-#endif
 
 			if (n <= 0)
 				break;
 
 #ifdef RAINBOW
-			wr = rbwrite(fp->f_fd, (UnivPtr) p, (size_t)chunk_size);
+			wr = rbwrite(fp->f_fd, (UnivPtr) p, (size_t)n);
 #else
-			wr = write(fp->f_fd, (UnivPtr) p, (size_t)chunk_size);
+			wr = write(fp->f_fd, (UnivPtr) p, (size_t)n);
 #endif
 			if (wr >= 0) {
 				p += wr;
-#ifdef __ELKS__
-#ifndef NO_JSTDOUT
-				/* ELKS: Flush frequently for stdout to prevent kernel buffer overflow */
-				if (fp == jstdout && wr > 0) {
-					/* Force kernel to process the write immediately */
-					/* On ELKS, small writes need immediate flushing */
-				}
-#endif
-#endif
 			} else {
 #ifndef MSDOS
 #ifdef __ELKS__

@@ -16,12 +16,7 @@ extern void flushscreen proto((void));
 # endif /* !IBMPCDOS */
 #else /* !NO_JSTDOUT */
 extern File	*jstdout;
-#ifdef __ELKS__
-/* ELKS: Flush more frequently to prevent kernel buffer overflow */
-# define scr_putchar(c)	do { f_putc((c), jstdout); if ((jstdout->f_ptr - jstdout->f_base) >= 16) flushscreen(); } while(0)
-#else
 # define scr_putchar(c)	f_putc((c), jstdout)
-#endif
 extern void		flushscreen proto((void));
 #endif /* !NO_JSTDOUT */
 
