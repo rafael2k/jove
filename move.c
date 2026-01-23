@@ -32,6 +32,14 @@ register long	n;
 		} else
 			curchar += 1;
 	}
+#ifdef __ELKS__
+	/* ELKS: Force screen update when moving cursor */
+	if (curwind->w_bufp == curbuf) {
+		curwind->w_line = curline;
+		curwind->w_char = curchar;
+		UpdModLine = YES;
+	}
+#endif
 }
 
 void
@@ -52,6 +60,14 @@ register long	n;
 		} else
 			curchar -= 1;
 	}
+#ifdef __ELKS__
+	/* ELKS: Force screen update when moving cursor */
+	if (curwind->w_bufp == curbuf) {
+		curwind->w_line = curline;
+		curwind->w_char = curchar;
+		UpdModLine = YES;
+	}
+#endif
 }
 
 void
