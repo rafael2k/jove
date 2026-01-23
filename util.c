@@ -18,6 +18,8 @@
 #include "move.h"
 #include "rec.h"
 
+extern int errno;
+
 #ifdef MAC
 # include "mac.h"
 #endif
@@ -523,10 +525,12 @@ void
 dopipe(p)
 int	*p;
 {
+#if 0
 	if (pipe(p) == -1) {
 		complain("[Pipe failed: %s]", strerror(errno));
 		/* NOTREACHED */
 	}
+#endif
 }
 
 void

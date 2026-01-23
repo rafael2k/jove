@@ -86,9 +86,10 @@ detach()
 #ifdef POSIX_PROCS
 	setsid();
 #endif
-#ifdef TIOCNOTTY
+// #ifdef TIOCNOTTY
+#ifdef 0
 	{
-		int fd = open("/dev/tty", O_WRONLY | O_BINARY | O_CLOEXEC);
+		int fd = open("/dev/tty1", O_WRONLY | O_BINARY | O_CLOEXEC);
 		/*
 		 * if one tries to use portsrv on modern *n*x,
 		 * shells (bash, dash) seem to hang, because
@@ -181,7 +182,7 @@ const char	*str;
 		 * machines, we are either detached from tty or trying to open
 		 * it might hang.
 		 */
-		int tfd = open("/dev/tty", O_WRONLY | O_BINARY);
+		int tfd = open("/dev/tty1", O_WRONLY | O_BINARY);
 		if (tfd >= 0)
 		do {} while (write(tfd, (UnivConstPtr)str, strlen(str)) < 0 &&
 			     RETRY_ERRNO(errno));

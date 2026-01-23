@@ -15,8 +15,6 @@ portsrv_*
 recover
 recover_*
 setmaps
-keys.c
-paths.h
 doc/cmds.txt
 doc/jove.txt
 doc/jove.man*

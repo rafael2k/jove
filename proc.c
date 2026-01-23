@@ -30,6 +30,11 @@
 
 #include <sys/stat.h>	/* for S_IWRITE and S_IREAD */
 
+extern int errno;
+#define EINTR   4
+#define ECHILD 10 
+
+
 #ifdef POSIX_SIGS
 # define SIGINTMASK_DECL	sigset_t sigintmask;
 # define SIGINTMASK_INIT()	{ sigemptyset(&sigintmask); sigaddset(&sigintmask, SIGINT); }

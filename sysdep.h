@@ -30,6 +30,27 @@
 # define PNAME_SYSCTL_OID	{CTL_KERN,KERN_PROC,KERN_PROC_PATHNAME,-1}
 #endif
 
+
+#ifdef __ELKS__
+# define MALLOC_CACHE 1
+# define JSMALL 1
+# define FAR_LINES 1
+// # define LG_JBUFSIZ 11
+# define NBUF 30
+# define NO_IPROCS 1
+# define BSDPOSIX_STDC 1
+# define NO_SETLOCALE 1
+# define NO_TIOCREMOTE 1
+# define POSIX_PROCS 1
+# define NO_MKSTEMP 1
+# define JTC 1
+//# define HAVE_PTY_H	1
+//# define BSDPOSIX_STDC	1
+# define TERMCAP 1
+# define TERMIOS 1
+# define ID_CHAR 1
+#endif
+
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
 /* System: modern OpenBSD, Darwin Mac OSX */
 # define BSDPOSIX_STDC	1
@@ -115,27 +136,28 @@
 # define BSDPOSIX	1
 #endif
 
-#ifdef BSDPOSIX	/* System: Posix system with BSD flavouring for ptys */
+// #ifdef BSDPOSIX	/* System: Posix system with BSD flavouring for ptys */
+#if 0
 /* System: SunOS4.1.3, DEC Ultrix 4.2 -- BSDPOSIX */
 /* System: DEC OSF/1 V1.3 -- BSDPOSIX + NO_TIOCREMOTE + NO_TIOCSIGNAL */
-# define TERMIOS	1
+// # define TERMIOS	1
 # define USE_GETCWD	1
-# define FULL_UNISTD	1
+// # define FULL_UNISTD	1
 # define USE_SELECT	1
-# if !defined(PIPEPROCS) && !defined(NO_IPROCS)	/* useful to test PIPEPROCS even on pty platforms */
-#  define PTYPROCS	1
-#  define BSD_PTYS	1	/* beware security flaw! */
-# endif
-# define POSIX_PROCS	1
-# define POSIX_SIGS	1
-# define JOB_CONTROL	1
+//# if !defined(PIPEPROCS) && !defined(NO_IPROCS)	/* useful to test PIPEPROCS even on pty platforms */
+//#  define PTYPROCS	1
+//#  define BSD_PTYS	1	/* beware security flaw! */
+//# endif
+// # define POSIX_PROCS	1
+// # define POSIX_SIGS	1
+// # define JOB_CONTROL	1
 # define BSD_SETPGRP	1
 # define USE_KILLPG	1
 # define USE_GETPWNAM	1
 # define USE_GETHOSTNAME	1
-# define USE_FSYNC	1
+// # define USE_FSYNC	1
 # define USE_FSTAT	1
-# define USE_FCHMOD	1
+// # define USE_FCHMOD	1
 # define HAS_SYMLINKS	1
 # ifndef ISO_8859_1 /* fudge for __convex__ (see above) */
 #  define USE_CTYPE	1
@@ -198,7 +220,7 @@
 # define SIGRESVALUE	0
 # define USE_GETHOSTNAME	1
 # define NO_STRERROR	1
-# define USE_FSYNC	1
+// # define USE_FSYNC	1
 # define USE_FSTAT	1
 # define USE_FCHMOD	1
 # define USE_BCOPY	1
@@ -215,6 +237,8 @@
  */
 # define AUTO_BUFS	1
 #endif
+
+#if 0
 
 #ifdef IBMPCDOS	/* Common characteristics for IBM-PC MS-DOS systems. */
 # ifndef MSDOS
@@ -236,6 +260,8 @@
 #  define LG_JBUFSIZ	11	/* so JBUFSIZ (and max line len) 2048 chars */
 #  define NBUF		30	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
 # endif
+#endif
+
 #endif
 
 #ifdef MSDOS	/* Common characteristics for MS-DOS systems. */
@@ -271,21 +297,23 @@
 
 #ifdef UNIX	/* Common characteristics for UNIX systems. */
 /* Our defaults tend to be conservative and lean towards pure SYSV */
-# define USE_INO	1
-# define TERMCAP	1
-# define NCURSES_BUG	1   /* almost certainly safe anyway */
-# define WINRESIZE	1
-# define MOUSE		1
+// # define USE_INO	1
+//# define TERMCAP	1
+# define USE_SELECT     1
+//# define NCURSES_BUG	1   /* almost certainly safe anyway */
+//# define WINRESIZE	1
+// # define MOUSE	1
 # define MALLOC_CACHE	1
-# if !(defined(USE_PWD) || defined(USE_GETCWD) || defined(USE_GETWD))
-#  define USE_GETWD     1
-# endif
-# if !(defined(NO_IPROCS) || defined(PIPEPROCS) || defined(PTYPROCS))
-#  define PIPEPROCS	1	/* use pipes */
-# endif
-# if !defined(TERMIOS) && !defined(SGTTY)
-#  define TERMIO	1	/* uses termio struct for terminal modes */
-# endif
+//# define USE_GETWD     1
+//# define PIPEPROCS	1	/* use pipes */
+//# define TERMIOS	1
+// # define TERMIO	        0	/* uses termio struct for terminal modes */
+# define LG_JBUFSIZ	10	/* so JBUFSIZ (and max line len) 1024 chars */
+// # define NBUF		10	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
+# define JSMALL		1	/* less than 64K lines fit in memory anyway */
+# define FAR_LINES	1	/* to squeeze larger files, use far line pointers */
+// # define NO_JSTDOUT	1	/* don't use jstdout */
+
 /* At the moment, the PTY code mandates having select().  One day, this might
  * change.
  */
@@ -305,18 +333,8 @@
 # define EXIT	exit
 #endif
 
-/* lint suppression macros; GCC requires use of extensions! Clang mimics. */
-#if !defined(GCC_LINT) && (defined(__GNUC__) || defined(__clang__))
-# define GCC_LINT
-#endif
-
-#ifdef GCC_LINT
-# define UNUSED(x)	x __attribute__ ((unused))
-# define NEVER_RETURNS	__attribute__ ((noreturn))
-#else /* !GCC_LINT */
-# define UNUSED(x)	x
+# define UNUSED2(x)	x
 # define NEVER_RETURNS
-#endif /* !GCC_LINT */
 
 /*************************************************************************
  *

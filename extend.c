@@ -27,6 +27,10 @@
 # include "mac.h"
 #endif
 
+extern int errno;
+#define EINTR   4
+
+
 private void
 	DefAutoExec proto((const data_obj *(*proc) ptrproto((const char *))));
 

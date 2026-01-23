@@ -565,24 +565,13 @@ YankPop()
 #define CHUNKSIZE	300
 
 #ifdef FAR_LINES
-# ifdef __BORLANDC__
-#  include <alloc.h>	/* Borland farmalloc() */
-# else
-#  ifdef OWCDOS
-#   include <malloc.h>
-#   define farmalloc(sz)	_fmalloc(sz)
-#   define farfree(x)	_ffree(x)
-#  else
-#   include <dos.h>	/* Zortech farmalloc(), MSC (?) */
-#  endif
-# endif
+#   define farmalloc(sz) malloc(sz)
+#   define farfree(x)	free(x)
+
 typedef struct chunk _far	*ChunkPtr;
-# define CHUNKMALLOC(s)	((ChunkPtr) farmalloc(s))
-# define CHUNKFREE(c)	farfree((void _far *) (c))
-#else
-typedef struct chunk	*ChunkPtr;
 # define CHUNKMALLOC(s)	((ChunkPtr) malloc(s))
-# define CHUNKFREE(c)	free((UnivPtr) (c))
+# define CHUNKFREE(c)	free((void _far *) (c))
+
 #endif
 
 struct chunk {

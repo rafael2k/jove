@@ -110,7 +110,7 @@ private int	data_fd = -1;
 private struct rec_head	Header;
 private long	Nchars,
 	Nlines;
-private char	tty[] = "/dev/tty";
+private char	tty[] = "/dev/tty1";
 private const char	*tmp_dir = TMPDIR;
 private uid_t	UserID;
 private jbool	Verbose = NO;

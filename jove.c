@@ -46,8 +46,6 @@
 # include <sys/ptem.h>
 #endif
 
-#include <signal.h>
-
 #ifdef MAC
 # include "mac.h"
 #else /* !MAC */
@@ -76,6 +74,27 @@ extern char *getLastErrorString(void);
 STACK_DECL
 #endif
 
+extern int errno;
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <time.h>
+#include <sys/select.h>
+#include <termios.h>
+#include <sys/ioctl.h>
+
+
+#define EPERM   1
+#define ENOENT  2
+#define EINTR   4
+#define EAGAIN  11
+
+char JoveCompiled[] = "ELKS OWC 2.0 2025";
+char JoveLinked[] = "ELKS OS/2 2025" ;
 /*
  * This is the maximum length of the basename of files in
  * ShareDir or LibDir (plus 1 for leading slash), as a check
@@ -149,7 +168,7 @@ private volatile jbool	InWaitChar = NO;
 /*ARGSUSED*/
 private SIGRESTYPE
 AlarmHandler(junk)
-int	UNUSED(junk);	/* passed in on signal; of no interest */
+int	UNUSED2(junk);	/* passed in on signal; of no interest */
 {
 	int save_errno = errno;	/* Subtle, but necessary! */
 
@@ -530,6 +549,26 @@ kbd_getch()
 			} else /*...*/
 #   endif /* PIPEPROCS */
 			/*...*/ {
+#ifdef __ELKS__
+				/* ELKS: Use kilo.c approach - read one byte at a time with timeout */
+				unsigned char c;
+				int nread;
+				InSlowRead = YES;
+				while ((nread = read(0, &c, 1)) == 0);  /* Loop until we get a character */
+				InSlowRead = NO;
+				if (nread < 0) {
+					if (RETRY_ERRNO(errno))
+						continue;  /* Retry on EINTR/EAGAIN */
+					finish(SIGHUP);
+				}
+				if (nread == 1) {
+					smbuf[0] = c;
+					nchars = 1;
+					bp = smbuf;
+				} else {
+					finish(SIGHUP);
+				}
+#else
 				do {
 #   ifdef UNIX
 					InSlowRead = YES;
@@ -541,6 +580,7 @@ kbd_getch()
 				} while (nchars < 0 && RETRY_ERRNO(errno));
 				if (nchars <= 0)
 					finish(SIGHUP);
+#endif
 			}
 #  endif /* !PTYPROCS */
 # endif /* !WIN32 */
@@ -1564,7 +1604,7 @@ register char	**args,
 /*ARGSUSED*/
 SIGRESTYPE
 win_reshape(junk)
-int	UNUSED(junk);	/* passed in when invoked by a signal; of no interest */
+int	UNUSED2(junk);	/* passed in when invoked by a signal; of no interest */
 {
 	int save_errno = errno;	/* Subtle, but necessary! */
 
@@ -1990,11 +2030,13 @@ char	*argv[];
 #ifdef MAC
 	InitEvents();
 #endif
-	d_cache_init();		/* initialize the disk buffer cache */
+        d_cache_init();		/* initialize the disk buffer cache */
+
 	make_scr();
-	flushscreen();	/* kludge: prevent interleaving output with diagnostic */
+        flushscreen();	/* kludge: prevent interleaving output with diagnostic */
 	mac_init();	/* Initialize Macros */
-	winit();	/* Initialize Window */
+        winit();	/* Initialize Window */
+
 #ifdef PTYPROCS
 # ifdef SIGCHLD
 	(void) setsighandler(SIGCHLD, sigchld_handler);

@@ -21,7 +21,7 @@ extern int	UNMACRO(tgetent) proto((char */*buf*/, const char */*name*/));
 extern int	UNMACRO(tgetflag) proto((const char */*id*/));
 extern int	UNMACRO(tgetnum) proto((const char */*id*/));
 extern char	*UNMACRO(tgetstr) proto((const char */*id*/, char **/*area*/));
-extern void	UNMACRO(tputs) proto((const char *, int, void (*) proto((int))));
+extern void	UNMACRO(tputs2) proto((const char *, int, void (*) proto((int))));
 
 /* Termcap definitions */
 
@@ -31,10 +31,10 @@ const char
 	*SE,	/* End standout */
 	*US,	/* Start underlining */
 	*UE,	/* End underlining */
-	*CM,	/* The cursor motion string */
+    *CM = "_",	/* The cursor motion string */ // TODO
 	*CL,	/* Clear screen */
 	*CE,	/* Clear to end of line */
-	*HO,	/* Home cursor */
+    *HO = " ",	/* Home cursor */ // TODO
 	*AL,	/* Addline (insert line) */
 	*DL,	/* Delete line */
 	*VS,	/* Visual start */
@@ -71,14 +71,13 @@ jbool
 
 #  ifdef DEFINE_PC_BC_UP_OSPEED
 	/* This is needed for HP-UX, possibly for other SYSVR2 systems */
-char
-	PC;		/* pad character, as a char (set from lPC; defaults to NUL) */
+//char	PC;		/* pad character, as a char (set from lPC; defaults to NUL) */
 
 const char
-	*BC,	/* back space (defaults to BS) */
-	*UP;	/* Scroll reverse, or up */
+    *BC,	/* back space (defaults to BS) */
+    *UP;	/* Scroll reverse, or up */
 
-short	ospeed;
+// short	ospeed;
 #  endif /* DEFINE_PC_BC_UP_OSPEED */
 
 jbool	CanScroll;	/* can this terminal scroll? */
@@ -172,8 +171,8 @@ getTERM()
 {
 	char	termnmbuf[13],
 		*termname = getenv("TERM"),
-		*termp = tspace,
-		tbuff[2048];	/* Good grief! */
+                *termp = tspace;
+//		tbuff[1024];	/* Good grief! */
 
 	if (termname == NULL || *termname == '\0'
 	|| strcmp(termname, "dumb") == 0
@@ -188,19 +187,22 @@ getTERM()
 		termname = termnmbuf;
 	}
 
+#if 0
 	if (tgetent(tbuff, termname) < 1)
 		tcbad(termname, "type unknown");
-
+#endif
 	/* get numeric capabilities */
 
 	if ((CO = tgetnum("co")) == -1)
-		tcbad(termname, "co unknown (width)");
+            CO = 80;
+            //tcbad(termname, "co unknown (width)");
 
 	if (CO > MAXCOLS)
-		CO = MAXCOLS;
+            CO = MAXCOLS;
 
 	if ((LI = tgetnum("li")) == -1)
-		tcbad(termname, "li unknown (height)");
+            LI = 25;
+            //tcbad(termname, "li unknown (height)");
 
 	if ((phystab = tgetnum("it")) == -1 || phystab <= 0)
 		phystab = 8;
@@ -245,7 +247,7 @@ getTERM()
 	&& strcmp(LcCtype, "C") == 0
 #  endif
 	)
-		MetaKey = YES;	/* has meta-key and default locale */
+            MetaKey = YES;	/* has meta-key and default locale */
 
 	if (tgetflag("xs") == YES) {
 		SO = SE = NULL;	/* don't use braindamaged standout mode */
@@ -302,6 +304,7 @@ getTERM()
 			IMEIlen = strlen(IM) + strlen(EI);
 #endif
 	}
+
 	if (!(CM != NULL || HO != NULL))
 		tcbad(termname, "JOVE needs either cm or ho termcap/terminfo capability");
 }
@@ -310,7 +313,7 @@ getTERM()
 
 private void
 tputc(c)
-char	c;
+int	c;
 {
 	scr_putchar(c);
 }
@@ -326,7 +329,7 @@ int
 {
 	if (ms && (num > 1 || !ss)) {
 		/* use the multi string */
-		tputs(targ1(ms, num), lines, tputc);
+		tputs2(targ1(ms, num), lines, tputc);
 	} else {
 		/* repeatedly use single string */
 		while (num--)
@@ -342,7 +345,7 @@ const char	*str;
 int	lines;
 {
 	if (str != NULL)
-		tputs(str, lines, tputc);
+		tputs2(str, lines, tputc);
 }
 
 void
