@@ -181,11 +181,23 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #if defined(TERMIO) || defined(TERMIOS)
+#ifdef __ELKS__
+	/* ELKS: Match kilo.c terminal settings more closely for better screen updates */
+	/* Disable more input flags like kilo.c */
+	sg[YES].c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON | IXOFF | INLCR | IGNCR);
+	/* Disable output post-processing */
+	sg[YES].c_oflag &= ~(OPOST);
+	/* Set 8-bit characters */
+	sg[YES].c_cflag |= (CS8);
+	/* Disable more local flags like kilo.c */
+	sg[YES].c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+#else
 	if (OKXonXoff)
 		sg[YES].c_iflag &= ~(IXON | IXOFF);
 	sg[YES].c_iflag &= ~(INLCR|ICRNL|IGNCR | (MetaKey? ISTRIP : 0));
 	sg[YES].c_lflag &= ~(ICANON|ECHO);
 	sg[YES].c_oflag &= ~(OPOST);
+#endif
 
 	/* Set all those c_cc elements that we must.
 	 * For peculiar systems, one might wish to predefine JVDISABLE
@@ -251,10 +263,13 @@ jbool	n;	/* also used as subscript! */
 # endif /* TERMIOS */
 
 #ifdef __ELKS__
-		/* ELKS: Use non-blocking reads with timeout like kilo.c
-		 * VMIN=0 means return immediately if no data, VTIME=2 means 200ms timeout */
+		/* ELKS: Experiment with different timeout values for better responsiveness
+		 * VMIN=0 means return immediately if no data
+		 * Try VTIME=1 (100ms) for faster response, or VTIME=2 (200ms) for more stable
+		 * Lower VTIME = more frequent checks = better screen updates but more CPU
+		 */
 		sg[YES].c_cc[VMIN] = 0;
-		sg[YES].c_cc[VTIME] = 2;
+		sg[YES].c_cc[VTIME] = 1;  /* 100ms timeout - faster response */
 #else
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;

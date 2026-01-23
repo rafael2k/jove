@@ -1618,32 +1618,75 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 			}
 			nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ);
 		}
-		if (nb != JBUFSIZ) {
 #ifdef __ELKS__
-			/* ELKS: Temp file errors are often recoverable, retry once more */
-			if (nb < 0 && errno == 9) {
-				tmpinit();
-				if (lseek(tmpfd, boff, 0) >= 0) {
-					nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ);
-					if (nb == JBUFSIZ)
-						return; /* Success on retry */
+		/* ELKS: Handle partial reads/writes for large files */
+		/* For large files, read/write might return less than JBUFSIZ */
+		if (nb > 0 && nb < JBUFSIZ) {
+			/* Partial read/write - try to complete it */
+			char *remaining = (char *)b->b_buf + nb;
+			JRWSIZE_T remaining_size = JBUFSIZ - nb;
+			JSSIZE_T more_nb;  /* Use signed type to detect errors */
+			
+			/* Continue reading/writing the remaining bytes */
+			while (remaining_size > 0) {
+				more_nb = (*iofcn)(tmpfd, (UnivPtr) remaining, remaining_size);
+				/* Cast to signed to properly detect errors */
+				if ((int)more_nb <= 0) {
+					if ((int)more_nb < 0 && (errno == 4 || errno == 11)) {
+						/* EINTR or EAGAIN - retry */
+						continue;
+					}
+					/* Error or EOF - log warning but continue */
+					if (iofcn == read && (int)more_nb == 0) {
+						/* EOF - fill rest with zeros for read */
+						{
+							char *p = remaining;
+							JRWSIZE_T i;
+							for (i = 0; i < remaining_size; i++)
+								p[i] = 0;
+						}
+						break;
+					}
+					if ((int)more_nb < 0) {
+						add_mess("[Tmp file %s partial warning: %d %s]", 
+							(iofcn == read) ? "READ" : "WRITE", errno, strerror(errno));
+					}
+					break;
 				}
+				remaining += more_nb;
+				remaining_size -= more_nb;
+				nb += more_nb;
 			}
-			/* If retry failed or it's a different error, continue anyway for ELKS */
-			/* The buffer might still be usable, just log a warning */
-			if (nb < 0) {
-				add_mess("[Tmp file %s warning: %d %s]", 
-					(iofcn == read) ? "READ" : "WRITE", errno, strerror(errno));
+			/* If we got a partial read/write, it's acceptable for ELKS */
+			if (nb > 0) {
+				return;
 			}
-			/* Don't error out - continue editing */
-			return;
+		}
+		/* ELKS: Temp file errors are often recoverable, retry once more */
+		if (nb < 0 && errno == 9) {
+			tmpinit();
+			if (lseek(tmpfd, boff, 0) >= 0) {
+				nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ);
+				if (nb == JBUFSIZ || (nb > 0 && nb < JBUFSIZ))
+					return; /* Success on retry (full or partial) */
+			}
+		}
+		/* If retry failed or it's a different error, continue anyway for ELKS */
+		/* The buffer might still be usable, just log a warning */
+		if (nb < 0) {
+			add_mess("[Tmp file %s warning: %d %s]", 
+				(iofcn == read) ? "READ" : "WRITE", errno, strerror(errno));
+		}
+		/* Don't error out - continue editing */
+		return;
 #else
+		if (nb != JBUFSIZ) {
 			error("[Tmp file %s error got %D: %d %s: to continue editing would be dangerous]",
 				(iofcn == read) ? "READ" : "WRITE", (long)nb,
 				nb < 0 ? errno : 0, nb < 0 ? strerror(errno): "");
 			/* NOTREACHED */
-#endif
 		}
+#endif
 	}
 }
 
