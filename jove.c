@@ -1664,6 +1664,8 @@ jbool	firsttime;
 		if (!DisabledRedisplay) {
 			redisplay();
 			flushscreen();
+			/* Extra flush to ensure kernel buffers are drained */
+			flushscreen();
 		}
 #endif
 		dispatch(getch());

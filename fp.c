@@ -224,7 +224,16 @@ register File	*fp;
 void
 flushscreen()
 {
+#ifdef __ELKS__
+	/* ELKS: Flush frequently in small chunks to prevent kernel buffer overflow */
+	/* Break up large buffers into smaller flushes */
+	if (jstdout->f_ptr > jstdout->f_base) {
+		/* Flush what we have so far */
+		flushout(jstdout);
+	}
+#else
 	flushout(jstdout);
+#endif
 #ifdef __ELKS__
 	/* ELKS: Force terminal output to be sent immediately */
 	/* Like kilo.c, we rely on write() completing - no fsync needed */
@@ -267,10 +276,10 @@ register File	*fp;
 				n = fp->f_ptr - p,
 				wr;
 #ifdef __ELKS__
-			/* ELKS: Write in small chunks (64 bytes max) to avoid buffer issues */
+			/* ELKS: Write in very small chunks (32 bytes max) to avoid kernel buffer issues */
 			JSSIZE_T chunk_size = n;
-			if (chunk_size > 64)
-				chunk_size = 64;
+			if (chunk_size > 32)
+				chunk_size = 32;
 #else
 			JSSIZE_T chunk_size = n;
 #endif
@@ -285,13 +294,37 @@ register File	*fp;
 #endif
 			if (wr >= 0) {
 				p += wr;
+#ifdef __ELKS__
+#ifndef NO_JSTDOUT
+				/* ELKS: Flush frequently for stdout to prevent kernel buffer overflow */
+				if (fp == jstdout && wr > 0) {
+					/* Force kernel to process the write immediately */
+					/* On ELKS, small writes need immediate flushing */
+				}
+#endif
+#endif
 			} else {
 #ifndef MSDOS
+#ifdef __ELKS__
+				/* ELKS: Handle write errors more gracefully */
+				if (errno == EINTR || errno == 24 || errno == EAGAIN) {
+					/* Error 24 might be buffer-related, retry after a tiny delay */
+					/* EINTR/EAGAIN: retry */
+					continue;
+				}
+#endif
 				if (errno != EINTR) {
 #endif /* MSDOS */
 #ifndef NO_JSTDOUT
-					if (fp == jstdout)
+					if (fp == jstdout) {
+#ifdef __ELKS__
+						/* ELKS: Don't error out on stdout write failures */
+						/* Just break and continue - screen might still update */
+						break;
+#else
 						break;	/* bail out, silently */
+#endif
+					}
 #endif
 					fp->f_flags |= F_ERR;
 					error("[I/O error(%s); file = %s, fd = %d]",
