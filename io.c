@@ -1606,8 +1606,8 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 		/* NOTREACHED */
 	}
 	else if ((nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ)) != JBUFSIZ) {
-		/* If we got EBADF (errno 9 = Bad file descriptor), the file descriptor might have been closed */
-		if (nb < 0 && (errno == 9 || errno == EBADF)) {
+		/* If we got errno 9 (Bad file descriptor), the file descriptor might have been closed */
+		if (nb < 0 && errno == 9) {
 			/* Try to reinitialize the temp file */
 			tmpinit();
 			/* Retry the operation */
