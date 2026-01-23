@@ -35,6 +35,9 @@
 # define MALLOC_CACHE 1
 # define JSMALL 1
 # define FAR_LINES 1
+# ifndef _far
+#  define _far		/* empty for non-DOS systems */
+# endif
 // # define LG_JBUFSIZ 11
 # define NBUF 30
 # define NO_IPROCS 1
@@ -312,6 +315,9 @@
 // # define NBUF		10	/* NBUF*JBUFSIZ must be less than 64K. Is this true even if MALLOC_CACHE is set? */
 # define JSMALL		1	/* less than 64K lines fit in memory anyway */
 # define FAR_LINES	1	/* to squeeze larger files, use far line pointers */
+# ifndef _far
+#  define _far		/* empty for non-DOS systems */
+# endif
 // # define NO_JSTDOUT	1	/* don't use jstdout */
 
 /* At the moment, the PTY code mandates having select().  One day, this might
