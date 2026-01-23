@@ -307,9 +307,10 @@ register File	*fp;
 #ifndef MSDOS
 #ifdef __ELKS__
 				/* ELKS: Handle write errors more gracefully */
-				if (errno == EINTR || errno == 24 || errno == EAGAIN) {
-					/* Error 24 might be buffer-related, retry after a tiny delay */
-					/* EINTR/EAGAIN: retry */
+				/* Use numeric values: EINTR=4, EAGAIN=11, errno 24 might be buffer-related */
+				if (errno == 4 || errno == 11 || errno == 24) {
+					/* Error 24 might be buffer-related, retry */
+					/* EINTR (4)/EAGAIN (11): retry */
 					continue;
 				}
 #endif
