@@ -254,11 +254,16 @@ redisplay()
 			|| des_p->s_vln != phys_p->s_vln
 			|| des_p->s_offset != phys_p->s_offset)
 				UpdLine(i);
+#ifdef __ELKS__
+			/* ELKS: Don't interrupt screen update - complete all lines first */
+			/* This prevents "half screen" updates */
+#else
 			if (CheapPreEmptOutput()) {
 				if (old_UpdModLine)
 					UpdModLine = YES;
 				goto suppress;
 			}
+#endif
 		}
 
 		if (Asking) {

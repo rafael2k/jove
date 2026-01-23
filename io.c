@@ -1591,6 +1591,9 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 	off_t boff = bno_to_seek_off(b->b_bno);
 	JSSIZE_T nb;
 	static jbool first_time = YES;
+#ifdef __ELKS__
+	jbool is_read_op;  /* Track if this is a read or write operation */
+#endif
 
 	if (first_time) {
 		tmpinit();
@@ -1600,6 +1603,11 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 	if (tmpfd == -1) {
 		tmpinit();
 	}
+#ifdef __ELKS__
+	/* Determine if this is a read or write operation by comparing function addresses */
+	/* We can't directly compare iofcn == read due to const mismatch, so use a workaround */
+	is_read_op = ((void *)iofcn == (void *)read);
+#endif
 	if (lseek(tmpfd, boff, 0) < 0) {
 		error("[Tmp file seek error to %D: %d %s; to continue editing would be dangerous]",
 		      (long)boff, errno, strerror(errno));
@@ -1636,20 +1644,29 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 						/* EINTR or EAGAIN - retry */
 						continue;
 					}
-					/* Error or EOF - log warning but continue */
-					if (iofcn == read && (int)more_nb == 0) {
-						/* EOF - fill rest with zeros for read */
+					/* Error or EOF */
+					if (is_read_op && (int)more_nb == 0) {
+						/* EOF - fill rest with zeros for read and accept partial */
 						{
 							char *p = remaining;
 							JRWSIZE_T i;
 							for (i = 0; i < remaining_size; i++)
 								p[i] = 0;
 						}
+						/* Accept partial read at EOF */
+						if (nb > 0) {
+							return;
+						}
 						break;
 					}
 					if ((int)more_nb < 0) {
+						/* Write error - log and try to continue */
 						add_mess("[Tmp file %s partial warning: %d %s]", 
-							(iofcn == read) ? "READ" : "WRITE", errno, strerror(errno));
+							is_read_op ? "READ" : "WRITE", errno, strerror(errno));
+						/* For writes, if we got some data written, accept it */
+						if (!is_read_op && nb > 0) {
+							return;
+						}
 					}
 					break;
 				}
@@ -1657,8 +1674,14 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 				remaining_size -= more_nb;
 				nb += more_nb;
 			}
-			/* If we got a partial read/write, it's acceptable for ELKS */
-			if (nb > 0) {
+			/* If we completed the full read/write, return success */
+			if (nb == JBUFSIZ) {
+				return;
+			}
+			/* For partial operations, only accept if we got significant data */
+			/* For large files, partial reads/writes might be normal */
+			if (nb > 0 && nb >= (JBUFSIZ / 2)) {
+				/* Got at least half the buffer - acceptable for ELKS */
 				return;
 			}
 		}
@@ -1675,7 +1698,7 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 		/* The buffer might still be usable, just log a warning */
 		if (nb < 0) {
 			add_mess("[Tmp file %s warning: %d %s]", 
-				(iofcn == read) ? "READ" : "WRITE", errno, strerror(errno));
+				is_read_op ? "READ" : "WRITE", errno, strerror(errno));
 		}
 		/* Don't error out - continue editing */
 		return;
