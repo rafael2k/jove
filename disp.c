@@ -245,7 +245,13 @@ redisplay()
 		 * we can't be sure that the updating has happened.
 		 */
 		old_UpdModLine = UpdModLine;
+#ifdef __ELKS__
+		/* ELKS: Don't clear UpdModLine immediately - let it persist
+		 * so screen updates are forced even if PreEmptOutput was called */
+		/* UpdModLine = NO; */
+#else
 		UpdModLine = NO;
+#endif
 
 		des_p = DesiredScreen;
 		phys_p = PhysScreen;
