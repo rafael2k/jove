@@ -35,20 +35,21 @@
 # define MALLOC_CACHE 1
 # define JSMALL 1
 # define FAR_LINES 1
-# ifndef _far
-#  define _far		/* empty for non-DOS systems */
-# endif
+# define LG_JBUFSIZ 11
 # define NBUF 30
 # define NO_IPROCS 1
 # define BSDPOSIX_STDC 1
-# define NO_SETLOCALE 1
-# define NO_TIOCREMOTE 1
-# define POSIX_PROCS 1
-# define NO_MKSTEMP 1
-# define JTC 1
-# define TERMCAP 1
-# define USE_TIOCGETC 1
-# define TERMIOS 1
+
+// uncomment if needed
+// # define NO_SETLOCALE 1
+// # define NO_TIOCREMOTE 1
+// # define POSIX_PROCS 1
+// # define NO_MKSTEMP 1
+// # define JTC 1
+// # define TERMCAP 1
+// # define USE_TIOCGETC 1
+// # define TERMIOS 1
+
 #endif
 
 #if defined(OpenBSD) || defined(Darwin) || defined (XBSD)
