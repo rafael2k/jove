@@ -12,6 +12,7 @@
 #include "disp.h"
 #include "move.h"
 #include "screen.h"	/* for tabstop */
+#include "wind.h"	/* for curwind */
 
 private int	line_pos;
 
