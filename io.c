@@ -1596,16 +1596,34 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 		tmpinit();
 		first_time = NO;
 	}
+	/* Check if tmpfd is valid, reinitialize if needed */
+	if (tmpfd == -1) {
+		tmpinit();
+	}
 	if (lseek(tmpfd, boff, 0) < 0) {
 		error("[Tmp file seek error to %D: %d %s; to continue editing would be dangerous]",
 		      (long)boff, errno, strerror(errno));
 		/* NOTREACHED */
 	}
 	else if ((nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ)) != JBUFSIZ) {
-		error("[Tmp file %s error got %D: %d %s: to continue editing would be dangerous]",
-			(iofcn == read) ? "READ" : "WRITE", (long)nb,
-			nb < 0 ? errno : 0, nb < 0 ? strerror(errno): "");
-		/* NOTREACHED */
+		/* If we got EBADF (errno 9 = Bad file descriptor), the file descriptor might have been closed */
+		if (nb < 0 && (errno == 9 || errno == EBADF)) {
+			/* Try to reinitialize the temp file */
+			tmpinit();
+			/* Retry the operation */
+			if (lseek(tmpfd, boff, 0) < 0) {
+				error("[Tmp file seek error to %D: %d %s; to continue editing would be dangerous]",
+				      (long)boff, errno, strerror(errno));
+				/* NOTREACHED */
+			}
+			nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ);
+		}
+		if (nb != JBUFSIZ) {
+			error("[Tmp file %s error got %D: %d %s: to continue editing would be dangerous]",
+				(iofcn == read) ? "READ" : "WRITE", (long)nb,
+				nb < 0 ? errno : 0, nb < 0 ? strerror(errno): "");
+			/* NOTREACHED */
+		}
 	}
 }
 
