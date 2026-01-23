@@ -393,6 +393,13 @@ jbool	indentp;
 	else
 		LineInsert(arg_value());
 
+	/* Force screen refresh after newline */
+	UpdModLine = YES;
+	if (curwind->w_bufp == curbuf) {
+		curwind->w_line = curline;
+		curwind->w_char = curchar;
+	}
+
 	if (indentp) {
 #ifdef LISP
 		if (MajorMode(LISPMODE))
