@@ -47,7 +47,7 @@
 # define POSIX_PROCS 1
 # define NO_MKSTEMP 1
 # define JTC 1
-# define BAREBONES     1
+// # define BAREBONES     1
 //# define HAVE_PTY_H	1
 //# define BSDPOSIX_STDC	1
 # define TERMCAP 1
