@@ -1658,6 +1658,14 @@ jbool	firsttime;
 		EventCmd = NO;
 		menus_on();
 #endif
+#ifdef __ELKS__
+		/* ELKS: Refresh screen before reading input (like kilo.c)
+		 * This ensures screen is always up-to-date before waiting for next keypress */
+		if (!DisabledRedisplay) {
+			redisplay();
+			flushscreen();
+		}
+#endif
 		dispatch(getch());
 	}
 }

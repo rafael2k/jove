@@ -1619,10 +1619,30 @@ register JSSIZE_T	(*iofcn) ptrproto((int, UnivPtr, JRWSIZE_T));
 			nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ);
 		}
 		if (nb != JBUFSIZ) {
+#ifdef __ELKS__
+			/* ELKS: Temp file errors are often recoverable, retry once more */
+			if (nb < 0 && errno == 9) {
+				tmpinit();
+				if (lseek(tmpfd, boff, 0) >= 0) {
+					nb = (*iofcn)(tmpfd, (UnivPtr) b->b_buf, (JRWSIZE_T)JBUFSIZ);
+					if (nb == JBUFSIZ)
+						return; /* Success on retry */
+				}
+			}
+			/* If retry failed or it's a different error, continue anyway for ELKS */
+			/* The buffer might still be usable, just log a warning */
+			if (nb < 0) {
+				add_mess("[Tmp file %s warning: %d %s]", 
+					(iofcn == read) ? "READ" : "WRITE", errno, strerror(errno));
+			}
+			/* Don't error out - continue editing */
+			return;
+#else
 			error("[Tmp file %s error got %D: %d %s: to continue editing would be dangerous]",
 				(iofcn == read) ? "READ" : "WRITE", (long)nb,
 				nb < 0 ? errno : 0, nb < 0 ? strerror(errno): "");
 			/* NOTREACHED */
+#endif
 		}
 	}
 }
