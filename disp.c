@@ -214,8 +214,13 @@ redisplay()
 		 */
 		InputPending = NO;
 #else
+#ifdef __ELKS__
+		/* ELKS: Always allow redisplay, don't skip due to pending input */
+		/* This ensures screen updates happen even when there's pending input */
+#else
 		if (PreEmptOutput())
 			return;
+#endif
 #endif
 		if (RingBell) {
 			dobell(1);
