@@ -597,12 +597,14 @@ kbd_getch()
 								smbuf[0] = c;
 								nchars = 1;
 								bp = smbuf;
+								InSlowRead = NO;
 							} else {
 								/* Incomplete sequence - treat as ESC [ */
 								smbuf[0] = ESC;
 								smbuf[1] = '[';
 								nchars = 2;
 								bp = smbuf;
+								InSlowRead = NO;
 							}
 						} else {
 							/* Just ESC or ESC followed by non-[ */
@@ -614,8 +616,8 @@ kbd_getch()
 							smbuf[0] = ESC;
 							nchars = 1;
 							bp = smbuf;
+							InSlowRead = NO;
 						}
-						InSlowRead = NO;
 					} else {
 						/* Regular character */
 						smbuf[0] = c;
@@ -1642,6 +1644,10 @@ jbool	firsttime;
 		menus_on();
 #endif
 		dispatch(getch());
+		/* Ensure screen is updated after command if needed */
+		if (!DisabledRedisplay && UpdModLine) {
+			redisplay();
+		}
 	}
 }
 
