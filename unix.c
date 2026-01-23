@@ -250,8 +250,15 @@ jbool	n;	/* also used as subscript! */
 #  endif
 # endif /* TERMIOS */
 
+#ifdef __ELKS__
+		/* ELKS: Use non-blocking reads with timeout like kilo.c
+		 * VMIN=0 means return immediately if no data, VTIME=2 means 200ms timeout */
+		sg[YES].c_cc[VMIN] = 0;
+		sg[YES].c_cc[VTIME] = 2;
+#else
 		sg[YES].c_cc[VMIN] = 1;
 		sg[YES].c_cc[VTIME] = 1;
+#endif
 	}
 #endif /* defined(TERMIO) || defined(TERMIOS) */
 
@@ -312,7 +319,13 @@ jbool	n;	/* also used as subscript! */
 #endif
 
 #ifdef TERMIOS
+#ifdef __ELKS__
+	/* ELKS: Use TCSAFLUSH like kilo.c to flush both input and output buffers
+	 * This ensures terminal state is properly synchronized */
+	do {} while (tcsetattr(0, TCSAFLUSH, &sg[n]) < 0 && errno == EINTR);
+#else
 	do {} while (tcsetattr(0, TCSADRAIN, &sg[n]) < 0 && errno == EINTR);
+#endif
 #endif
 
 #ifdef USE_TIOCSLTC
