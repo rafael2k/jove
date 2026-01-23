@@ -97,6 +97,11 @@ register long	num;
 	curchar = 0;
 	makedirty(curline);
 	IFixMarks(olddot, oldchar, curline, curchar);
+	/* Update window's current line pointer so redisplay can scroll if needed */
+	if (curwind->w_bufp == curbuf) {
+		curwind->w_line = curline;
+		curwind->w_char = curchar;
+	}
 }
 
 /* Inserts tabs and spaces to move the cursor to column GOAL.  It
