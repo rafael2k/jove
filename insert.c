@@ -398,6 +398,11 @@ jbool	indentp;
 	if (curwind->w_bufp == curbuf) {
 		curwind->w_line = curline;
 		curwind->w_char = curchar;
+#ifdef __ELKS__
+		/* ELKS: Recalculate window position to ensure scrolling works */
+		/* This ensures that if cursor moved below visible area, window scrolls */
+		CalcWind(curwind);
+#endif
 	}
 
 	if (indentp) {
